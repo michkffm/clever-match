@@ -1,0 +1,125 @@
+.matches-container {
+  padding: 24px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.matches-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  gap: 16px;
+  text-align: center;
+  position: relative;
+}
+
+.matches-header h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--color-text);
+  flex: 1;
+  text-align: center;
+}
+
+.matches-unread-count {
+  background: var(--color-error, #f44336);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  position: absolute;
+  right: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.matches-unread-spacer {
+  position: absolute;
+  left: 0;
+  width: 140px;
+  height: 28px;
+  padding: 6px 12px;
+  border-radius: 12px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  visibility: hidden;
+}
+
+/* MATCHES LIST */
+.matches-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* EMPTY STATE */
+.matches-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 60px 24px;
+  gap: 16px;
+}
+
+.matches-empty-icon {
+  font-size: 64px;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+.matches-empty h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.matches-empty p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--color-text-secondary);
+}
+
+/* RESPONSIVE */
+@media (max-width: 480px) {
+  .matches-container {
+    padding: 16px;
+  }
+
+  .matches-header {
+    flex-direction: column;
+    margin-bottom: 16px;
+  }
+
+  .matches-header h1 {
+    font-size: 20px;
+  }
+
+  .matches-list {
+    gap: 10px;
+  }
+
+  .matches-empty {
+    padding: 40px 16px;
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "name": "tanzmatch",
+  "description": "TanzMatch - Find Your Dance Partner",
+  "private": false,
+  "version": "0.0.1",
+  "license": "MIT",
+  "workspaces": [
+    "frontend",
+    "backend",
+    "packages/types"
+  ],
+  "scripts": {
+    "dev": "npm run dev -w frontend",
+    "dev:all": "node scripts/dev-all.mjs",
+    "build": "npm run build -w packages/types && npm run build:frontend && npm run build:backend",
+    "build:frontend": "npm run build -w frontend",
+    "build:backend": "npm run build -w backend",
+    "lint": "npm run lint -w frontend && npm run lint -w backend",
+    "type-check": "npm run type-check -w frontend && npm run type-check -w backend",
+    "start:backend": "npm run start -w backend",
+    "test:e2e": "playwright test"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/michkffm/tanzmatch.git"
+  },
+  "keywords": [
+    "dating",
+    "dance",
+    "matching",
+    "social"
+  ],
+  "devDependencies": {
+    "@playwright/test": "^1.55.0"
+  }
+}

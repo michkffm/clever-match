@@ -1,0 +1,21 @@
+{
+  "name": "TanzMatch",
+  "short_name": "TanzMatch",
+  "description": "Tanzpartner-Boerse als Progressive Web App",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f5f5f5",
+  "theme_color": "#4CAF50",
+  "icons": [
+    {
+      "src": "/tanzmatch.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/tanzmatch.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}

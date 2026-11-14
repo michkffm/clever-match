@@ -1,0 +1,220 @@
+.profile-card {
+  width: 100%;
+  max-width: 560px;
+  height: clamp(580px, 75vh, 720px);
+  background: linear-gradient(180deg, rgba(34, 24, 31, 0.96) 0%, rgba(23, 18, 24, 0.98) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 22px 48px rgba(0, 0, 0, 0.34);
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.profile-card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 28px 56px rgba(0, 0, 0, 0.38);
+}
+
+.card-photo {
+  position: relative;
+  width: 100%;
+  height: clamp(300px, 50vh, 430px);
+  background: linear-gradient(135deg, rgba(236, 72, 153, 0.08) 0%, rgba(168, 85, 247, 0.08) 100%);
+  overflow: hidden;
+}
+
+.photo-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center 20%;
+  padding: 8px;
+}
+
+.photo-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%);
+}
+
+.online-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: var(--color-online);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.compatibility-badge {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  background: rgba(20, 16, 21, 0.86);
+  color: #ffd3b6;
+  padding: 8px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.card-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  gap: 12px;
+  overflow-y: auto;
+}
+
+.name-section {
+  margin: 0;
+}
+
+.profile-name {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0;
+  color: var(--color-text);
+}
+
+.profile-meta {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  margin: 4px 0 0 0;
+}
+
+.distance-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--color-text-secondary);
+}
+
+.dances-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.dance-tag {
+  background: var(--color-primary);
+  color: white;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.dance-tag.more {
+  background: var(--color-accent);
+}
+
+:root[data-theme='light'] .profile-card {
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  box-shadow: 0 18px 36px rgba(15, 23, 42, 0.12);
+}
+
+:root[data-theme='light'] .profile-card:hover {
+  box-shadow: 0 22px 44px rgba(15, 23, 42, 0.16);
+}
+
+:root[data-theme='light'] .card-photo {
+  background: rgba(15, 23, 42, 0.04);
+}
+
+:root[data-theme='light'] .compatibility-badge {
+  background: rgba(255, 255, 255, 0.86);
+  color: #ec4899;
+  border: 1px solid rgba(236, 72, 153, 0.2);
+}
+
+.profile-bio {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  margin: 4px 0;
+  line-height: 1.4;
+  flex: 1;
+}
+
+.card-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid var(--color-border);
+}
+
+button.btn-nope,
+button.btn-like,
+button.btn-superlike {
+  padding: 0;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: 2px solid var(--color-border);
+  background: rgba(255, 255, 255, 0.06);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+button.btn-nope:hover {
+  background: rgba(255, 107, 107, 0.12);
+  border-color: var(--color-error);
+  color: var(--color-error);
+  transform: scale(1.1);
+}
+
+button.btn-like {
+  background: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+}
+
+button.btn-like:hover {
+  transform: scale(1.15);
+  box-shadow: 0 10px 24px rgba(255, 107, 95, 0.34);
+}
+
+button.btn-superlike {
+  background: var(--color-accent);
+  color: white;
+  border-color: var(--color-accent);
+}
+
+button.btn-superlike:hover {
+  transform: scale(1.15) rotate(15deg);
+  box-shadow: 0 10px 24px rgba(255, 155, 84, 0.34);
+}
+
+@media (max-width: 480px) {
+  .profile-card {
+    max-width: 100%;
+    height: 550px;
+  }
+
+  .card-photo {
+    height: 350px;
+  }
+
+  .profile-name {
+    font-size: 22px;
+  }
+}

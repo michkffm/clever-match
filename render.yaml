@@ -1,0 +1,42 @@
+services:
+  - type: web
+    name: tanzmatch-api
+    runtime: node
+    plan: free
+    buildCommand: npm ci && npm run build -w packages/types && npm run build:backend
+    startCommand: npm run start:backend
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: TRUST_PROXY
+        value: "1"
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 15m
+      - key: REFRESH_COOKIE_SAMESITE
+        value: lax
+      - key: CORS_ORIGIN
+        fromService:
+          type: web
+          name: tanzmatch-web
+          envVarKey: RENDER_EXTERNAL_HOSTNAME
+
+  - type: web
+    name: tanzmatch-web
+    runtime: static
+    buildCommand: npm ci && npm run build:frontend
+    staticPublishPath: frontend/dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_HOST
+        fromService:
+          type: web
+          name: tanzmatch-api
+          envVarKey: RENDER_EXTERNAL_HOSTNAME
