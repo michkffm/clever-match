@@ -1,3 +1,4 @@
+import { useTranslation } from "../utils/translations";
 import React, { useState, useRef, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Send, Phone, Video, Image, Smile, Trash2, UserX, PhoneOff } from 'lucide-react';
@@ -25,6 +26,7 @@ interface CachedChatMessage {
 }
 
 export const Chat: React.FC = () => {
+  const t = useTranslation();
   const { id: matchId } = useParams();
   const currentUserId = storageService.getUser()?.id;
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -438,8 +440,8 @@ export const Chat: React.FC = () => {
             {callOpen && (
               <button
                 className="chat-hangup-icon"
-                title="Auflegen"
-                aria-label="Auflegen"
+                title={t("Auflegen")}
+                aria-label={t("Auflegen")}
                 onClick={() => void endCall()}
               >
                 <PhoneOff size={18} />
@@ -447,8 +449,8 @@ export const Chat: React.FC = () => {
             )}
             <button
               className="chat-header-btn"
-              title="Blockieren"
-              aria-label="Blockieren"
+              title={t("Blockieren")}
+              aria-label={t("Blockieren")}
               onClick={handleBlockUser}
             >
               <UserX size={20} />
@@ -456,11 +458,11 @@ export const Chat: React.FC = () => {
             {isBlocked && (
               <button
                 className="chat-header-btn"
-                title="Entblocken"
-                aria-label="Entblocken"
+                title={t("Entblocken")}
+                aria-label={t("Entblocken")}
                 onClick={handleUnblockUser}
               >
-                Entblocken
+                {t("Entblocken")}
               </button>
             )}
           </div>
@@ -490,8 +492,8 @@ export const Chat: React.FC = () => {
                 <button
                   className="message-delete"
                   onClick={() => void handleDeleteMessage(message.id)}
-                  aria-label="Nachricht löschen"
-                  title="Nachricht löschen"
+                  aria-label={t("Nachricht löschen")}
+                  title={t("Nachricht löschen")}
                 >
                   <Trash2 size={14} />
                 </button>
@@ -523,7 +525,7 @@ export const Chat: React.FC = () => {
           <div className="chat-input-wrapper">
             <textarea
               className="chat-input"
-              placeholder="Schreib eine Nachricht..."
+              placeholder={t("Schreib eine Nachricht...")}
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyPress={handleKeyPress}
@@ -557,7 +559,7 @@ export const Chat: React.FC = () => {
                 </span>
               </div>
               <button className="call-end-btn" onClick={() => void endCall()}>
-                {callStatus === 'connecting' ? 'Abbrechen' : 'Auflegen'}
+                {callStatus === 'connecting' ? 'Abbrechen' : t("Auflegen")}
               </button>
             </div>
 
@@ -573,7 +575,7 @@ export const Chat: React.FC = () => {
             </div>
             <div className="call-actions">
               <button className="call-end-btn call-end-primary" onClick={() => void endCall()}>
-                {callStatus === 'connecting' ? 'Abbrechen' : 'Auflegen'}
+                {callStatus === 'connecting' ? 'Abbrechen' : t("Auflegen")}
               </button>
             </div>
           </div>

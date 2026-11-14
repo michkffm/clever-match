@@ -1,3 +1,4 @@
+import { useTranslation } from "../utils/translations";
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MessageCircle } from 'lucide-react';
@@ -10,6 +11,7 @@ import type { Match, Profile, Message } from '../types/api';
 import './Matches.css';
 
 export const Matches: React.FC = () => {
+  const t = useTranslation();
   const navigate = useNavigate();
   const [matches, setMatches] = useState<MatchCardData[]>([]);
 
@@ -67,7 +69,7 @@ export const Matches: React.FC = () => {
           <span className="matches-unread-count matches-unread-spacer" aria-hidden="true">
             <MessageCircle size={16} />
           </span>
-          <h1>Meine Matches</h1>
+          <h1>{t("Meine Matches")}</h1>
           {totalUnread > 0 && (
             <div className="matches-unread-count">
               {totalUnread} neue Nachrichten
@@ -88,8 +90,8 @@ export const Matches: React.FC = () => {
         ) : (
           <div className="matches-empty">
             <div className="matches-empty-icon">💔</div>
-            <h2>Noch keine Matches</h2>
-            <p>Swipe und finde deinen perfekten Tanzpartner!</p>
+            <h2>{t("Noch keine Matches")}</h2>
+            <p>{t("Swipe und finde deinen perfekten Tanzpartner!")}</p>
           </div>
         )}
       </div>

@@ -1,246 +1,91 @@
 # TanzMatch
 
-[Live-App](https://tanzmatch-web.onrender.com/) · [GitHub](https://github.com/michkffm/tanzmatch)
+**Deutsch** | [English](README.en.md)
 
-TanzMatch ist eine Fullstack-App zum Finden von Tanzpartnern mit Profilen, Matching und Chat. Das React-Frontend und die Express-API sind auf Render veröffentlicht und mit MongoDB Atlas verbunden.
+[Live-App](https://tanzmatch-web.onrender.com/)
+
+TanzMatch ist eine Fullstack-App zum Finden von Tanzpartnern mit Profilen, Matching und Chat. Frontend und Backend laufen auf Render; die Daten werden in MongoDB Atlas gespeichert.
 
 ![TanzMatch – Anmeldung auf dem Desktop](docs/tanzmatch-desktop.png)
+
+## Funktionen
+
+- Registrierung, Anmeldung und eigener Gastzugang
+- Profile bearbeiten und Tanzpartner entdecken
+- Likes, gegenseitige Matches und Chat
+- Events und Event-Anmeldungen
+- Private Profile und Blockieren anderer Nutzer
+- Deutsche und englische Oberfläche, Hell- und Dunkelmodus
+- Bedienung per Tastatur, sichtbare Fokusmarkierung, größere Schrift und reduzierte Bewegung
 
 ## Mobile Ansicht
 
 <img src="docs/tanzmatch-mobile.png" alt="TanzMatch – Anmeldung auf einem Smartphone" width="390">
 
+Die Screenshots zeigen die veröffentlichte Anmeldung zum Zeitpunkt der Aufnahme. Die Oberfläche wird weiterentwickelt.
+
 ## Entwicklungsstand
 
-Profile, Matching und Chat sind implementiert. Passwort-Reset über Resend, Benachrichtigungen und die Bereinigung vorhandener Frontend-Lintfehler sind in Arbeit. TanzMatch bleibt kostenlos; es gibt derzeit keine bezahlten Abos.
+TanzMatch bleibt kostenlos. Der Passwort-Reset über Resend und die Vervollständigung der Benachrichtigungen sind noch in Arbeit. Es gibt keine bezahlten Abos. Einzelne erweiterte Oberflächen enthalten noch nicht vollständig umgesetzte Funktionen oder Übersetzungen. Vorhandene Frontend-Lintfehler werden separat bereinigt. Eine vollständige Prüfung auf WCAG-Konformität wurde noch nicht durchgeführt.
 
-## 📁 Projektstruktur
+## Lokal starten
 
-```
-tanzmatch/
-├── frontend/                    # React/Vite App (Port 5173)
-│   ├── src/
-│   ├── public/
-│   ├── index.html
-│   ├── vite.config.ts
-│   ├── package.json
-│   ├── tsconfig.json
-│   └── .env.example
-│
-├── backend/                     # Express.js API Server (Port 5000)
-│   ├── src/
-│   │   └── index.ts            # Main application entry
-│   ├── dist/                    # Compiled output
-│   ├── package.json
-│   ├── tsconfig.json
-│   └── .env.example
-│
-├── packages/
-│   └── types/                   # Shared TypeScript Types
-│       ├── src/
-│       │   └── index.ts         # All shared types
-│       ├── dist/
-│       └── package.json
-│
-├── package.json                 # Root package with workspaces
-└── README.md
-```
-
-## 🚀 Getting Started
-
-### Installation
+Voraussetzungen: Node.js 22, npm und eine erreichbare MongoDB-Datenbank.
 
 ```bash
-# Install root dependencies & workspace dependencies
-npm install
-
-# Install specific workspace
-npm install -w frontend
-npm install -w backend
-npm install -w packages/types
-```
-
-### Development
-
-```bash
-# Start Frontend (http://localhost:5173)
-npm run dev
-
-# Start Backend in development (http://localhost:5000)
-npm run dev -w backend
-
-# Start Backend on another port if 5000 is occupied
-PORT=5002 npm run dev -w backend
-
-# Start all workspaces at once
+git clone https://github.com/michkffm/tanzmatch.git
+cd tanzmatch
+npm ci
+cp backend/.env.example backend/.env
+cp frontend/.env.example frontend/.env.local
+npm run build -w packages/types
 npm run dev:all
 ```
 
-### Production Start
+Trage vor dem Start die MongoDB-URI und einen zufälligen JWT-Schlüssel mit mindestens 32 Zeichen in `backend/.env` ein. Echte Zugangsdaten gehören niemals ins Repository.
+
+Frontend: `http://localhost:5173` · API: `http://localhost:5000/api`
+
+## Prüfen und bauen
 
 ```bash
-# Build backend first
-npm run build:backend
-
-# Start compiled backend on default port 5000
-npm run start:backend
-
-# Or override the port
-PORT=5002 npm run start:backend
-```
-
-### Build
-
-```bash
-# Build all workspaces
-npm run build
-
-# Build specific workspace
-npm run build:frontend
-npm run build:backend
-```
-
-### Linting & Type Checking
-
-```bash
-# Lint all workspaces
-npm run lint
-
-# Type check all workspaces
 npm run type-check
+npm run lint
+npm run test:e2e
+npm run build
+npm run start:backend
 ```
 
-## 📦 Workspaces
+Der Produktionsbuild erstellt zuerst die gemeinsamen Typen, danach Frontend und Backend. Die Browserprüfungen starten einen lokalen Frontend-Testserver. `npm run lint` meldet derzeit noch bestehende Frontend-Probleme.
 
-### frontend
-- **Framework**: React 19 + TypeScript
-- **Build Tool**: Vite
-- **State Management**: Zustand
-- **Routing**: React Router
-- **UI Components**: Lucide React Icons
-- **Port**: `5173`
+## Technologien und Struktur
 
-### backend
-- **Runtime**: Node.js
-- **Framework**: Express.js
-- **Language**: TypeScript
-- **Database**: MongoDB via Mongoose
-- **Port**: `5000`
+| Bereich | Technologien / Verzeichnis |
+| --- | --- |
+| Frontend | React, TypeScript, Vite, Zustand · `frontend/` |
+| Backend | Node.js, Express, Mongoose, WebSocket · `backend/` |
+| Datenbank | MongoDB Atlas |
+| Gemeinsame Typen | TypeScript · `packages/types/` |
+| Browserprüfungen | Playwright · `e2e/` |
+| Bereitstellung | Render Blueprint · `render.yaml` |
 
-### packages/types
-- **Purpose**: Shared TypeScript Types
-- **Used by**: Frontend & Backend
-- **Includes**: User, Profile, Match, Message, Event types
+## Konfiguration und Bereitstellung
 
-## 🔗 API Endpoints
+Die benötigten Variablen sind ohne geheime Werte in `backend/.env.example` und `frontend/.env.example` dokumentiert. `render.yaml` beschreibt die API und das statische Frontend.
 
-### Authentication
-- `POST /api/auth/login` - User login
-- `POST /api/auth/register` - User registration
-- `POST /api/auth/logout` - User logout
+- `MONGODB_URI`: MongoDB-Verbindung, auf Render als Secret speichern
+- `JWT_SECRET`: zufälliger Schlüssel für Sitzungstokens
+- `CORS_ORIGIN`: erlaubte Frontend-Adresse
+- `VITE_API_HOST` oder `VITE_API_URL`: Backend-Adresse für das Frontend
+- `CLOUDINARY_URL`: erforderlich für Profilfoto-Uploads
+- `ENABLE_DEMO_SEED`: nur für ausdrücklich aktivierte lokale Demo-Daten
 
-### Profile
-- `GET /api/profile` - Get current user profile
-- `PUT /api/profile` - Update profile
+Passwort-Reset ist bis zur sicheren Einrichtung eines E-Mail-Versanddiensts deaktiviert. Secrets werden ausschließlich lokal oder im Hosting-Dienst gespeichert.
 
-### Discovery
-- `GET /api/profiles` - List all profiles
-- `GET /api/profiles/:id` - Get specific profile
+## Sicherheit und Datenschutz
 
-### Matches
-- `GET /api/matches` - Get all matches
-- `POST /api/matches` - Create new match (like, superlike, pass)
+Öffentliche Profile geben keine E-Mail-Adressen oder genauen Koordinaten aus. Access-Tokens sind kurzlebig und werden im Browser nur im Arbeitsspeicher gehalten. Chat-Zugriff setzt ein aktives gegenseitiges Match voraus. Lokale `.env`-Dateien, Abhängigkeiten und Build-Ausgaben sind von Git ausgeschlossen.
 
-### Messages
-- `GET /api/messages/:matchId` - Get messages for match
-- `POST /api/messages` - Send message
+## Autor
 
-### Events
-- `GET /api/events` - List events
-- `POST /api/events/:id/register` - Register for event
-
-## 🔄 Shared Types Usage
-
-### Frontend
-```typescript
-import type { User, Profile, Match } from '@tanzmatch/types';
-
-const user: User = {
-  id: '1',
-  email: 'user@example.com',
-  firstName: 'Max',
-  lastName: 'Mustermann',
-};
-```
-
-### Backend
-```typescript
-import type { AuthResponse, MatchRequest } from '@tanzmatch/types';
-
-const response: AuthResponse = {
-  token: 'jwt-token',
-  user: {...},
-};
-```
-
-## 🌍 Environment Variables
-
-### Frontend (.env)
-```
-VITE_API_URL=http://localhost:5000/api
-VITE_APP_NAME=TanzMatch
-```
-
-### Backend (.env)
-```
-PORT=5000
-NODE_ENV=development
-MONGODB_URI=mongodb://...
-JWT_SECRET=<at-least-32-random-characters>
-JWT_EXPIRES_IN=15m
-```
-
-## 📚 Architecture Principles
-
-- **Monorepo**: Single repository for Frontend, Backend & Shared
-- **TypeScript**: Full type safety across all packages
-- **Workspaces**: npm workspaces for dependency management
-- **Shared Types**: Single source of truth for API contracts
-- **API-First**: REST API with clear contracts
-
-## 🛠️ Development Workflow
-
-1. **Start Backend**: `npm run dev -w backend`
-2. **Start Frontend**: `npm run dev`
-3. **Make Changes**: Frontend uses API from Backend
-4. **Update Types**: Modify `packages/types/src/index.ts`
-5. **Both packages auto-update**: Through workspace references
-
-## 📖 Documentation
-
-### Frontend
-See [frontend/README.md](frontend/README.md) for React-specific docs
-
-### Backend
-See [backend/README.md](backend/README.md) for API docs
-
-### Types
-See [packages/types/README.md](packages/types/README.md) for type definitions
-
-## Deployment on Render
-
-The root `render.yaml` describes a static frontend and an Express API. Create a Render Blueprint from this repository and set `MONGODB_URI` in Render's environment settings. The blueprint generates `JWT_SECRET` and connects the frontend and API host names. Keep all secret values in Render or local `.env` files; never add them to Git.
-
-Profile photo uploads require `CLOUDINARY_URL`. Password reset remains unavailable until an email delivery provider is configured.
-
-## 📝 License
-
-MIT
-
-## 👨‍💻 Author
-
-Michael Koch
-
----
-
-**Happy Dancing! 💃🕺**
+Michael Koch · [GitHub](https://github.com/michkffm) · [Portfolio](https://michael-koch-portfolio.vercel.app/)

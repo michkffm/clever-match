@@ -31,7 +31,7 @@ const initialThemePreference = (() => {
     return 'light';
   }
   const stored = localStorage.getItem('theme_preference');
-  return stored === 'dark' ? 'dark' : 'light';
+  return stored === 'dark' || (!stored && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
 })();
 
 export const useAppStore = create<AppStore>((set) => ({

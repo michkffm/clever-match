@@ -1,3 +1,4 @@
+import { useTranslation } from "../utils/translations";
 import React, { useEffect, useState } from 'react';
 import { Bell, MessageCircle, Heart } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -17,6 +18,7 @@ type NotificationItem = {
 };
 
 export const Notifications: React.FC = () => {
+  const t = useTranslation();
   const navigate = useNavigate();
   const [items, setItems] = useState<NotificationItem[]>([]);
 
@@ -87,12 +89,12 @@ export const Notifications: React.FC = () => {
       <div className="notifications-container">
         <div className="notifications-header">
           <Bell size={22} />
-          <h1>Benachrichtigungen</h1>
+          <h1>{t("Benachrichtigungen")}</h1>
         </div>
 
         <div className="notifications-list">
           {items.length === 0 && (
-            <div className="notifications-empty">Keine Benachrichtigungen</div>
+            <div className="notifications-empty">{t("Keine Benachrichtigungen")}</div>
           )}
           {items.map((item) => {
             const Icon = item.icon;

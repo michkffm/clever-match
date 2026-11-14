@@ -1,3 +1,4 @@
+import { useTranslation } from "../utils/translations";
 import React, { useEffect, useState } from 'react';
 import { Save, Upload, Trash2 } from 'lucide-react';
 import { TanzCheckboxGrid } from '../components/TanzCheckboxGrid';
@@ -50,6 +51,7 @@ const initialState: ProfileEditState = {
 type TabType = 'info' | 'dances' | 'calendar' | 'photos';
 
 export const ProfileEdit: React.FC = () => {
+  const t = useTranslation();
   const { user, setUser } = useAuthStore();
   const notify = useNotification();
   const [profile, setProfile] = useState<ProfileEditState>(initialState);
@@ -250,7 +252,7 @@ export const ProfileEdit: React.FC = () => {
       <div className="profile-edit-container">
         {/* Header */}
         <div className="profile-edit-header">
-          <h1>Mein Profil bearbeiten</h1>
+          <h1>{t("Mein Profil bearbeiten")}</h1>
           <div className="profile-edit-actions">
             <button
               className={`btn-save ${isSaving ? 'disabled' : ''}`}
@@ -296,11 +298,11 @@ export const ProfileEdit: React.FC = () => {
           {currentTab === 'info' && (
             <div className="info-tab">
               <div className="form-section">
-                <h2>Grundinfos</h2>
+                <h2>{t("Grundinfos")}</h2>
 
                 <div className="form-row">
                   <div className="form-group">
-                    <label>Vorname</label>
+                    <label>{t("Vorname")}</label>
                     <input
                       type="text"
                       value={profile.firstName}
@@ -309,7 +311,7 @@ export const ProfileEdit: React.FC = () => {
                     />
                   </div>
                   <div className="form-group">
-                    <label>Nachname</label>
+                    <label>{t("Nachname")}</label>
                     <input
                       type="text"
                       value={profile.lastName}
@@ -321,7 +323,7 @@ export const ProfileEdit: React.FC = () => {
 
                 <div className="form-row">
                   <div className="form-group">
-                    <label>Alter (Jahre)</label>
+                    <label>{t("Alter (Jahre)")}</label>
                     <input
                       type="number"
                       min="18"
@@ -332,7 +334,7 @@ export const ProfileEdit: React.FC = () => {
                     />
                   </div>
                   <div className="form-group">
-                    <label>Größe (cm)</label>
+                    <label>{t("Größe (cm)")}</label>
                     <input
                       type="number"
                       min="150"
@@ -346,56 +348,56 @@ export const ProfileEdit: React.FC = () => {
 
                 <div className="form-row">
                   <div className="form-group">
-                    <label>Geschlecht</label>
+                    <label>{t("Geschlecht")}</label>
                     <select
                       value={profile.gender}
                       onChange={(e) => handleChange('gender', e.target.value)}
                       className="form-input-field"
                     >
-                      <option value="M">Männlich</option>
-                      <option value="W">Weiblich</option>
-                      <option value="D">Divers</option>
-                      <option value="other">Sonstiges</option>
+                      <option value="M">{t("Männlich")}</option>
+                      <option value="W">{t("Weiblich")}</option>
+                      <option value="D">{t("Divers")}</option>
+                      <option value="other">{t("Sonstiges")}</option>
                     </select>
                   </div>
                 </div>
               </div>
 
               <div className="form-section">
-                <h2>Körperbau</h2>
+                <h2>{t("Körperbau")}</h2>
 
                 <div className="form-row">
                   <div className="form-group">
-                    <label>Sportlichkeit</label>
+                    <label>{t("Sportlichkeit")}</label>
                     <select
                       value={profile.athleticism}
                       onChange={(e) => handleChange('athleticism', e.target.value)}
                       className="form-input-field"
                     >
-                      <option value="very-sporty">Sehr sportlich</option>
-                      <option value="sporty">Sportlich</option>
+                      <option value="very-sporty">{t("Sehr sportlich")}</option>
+                      <option value="sporty">{t("Sportlich")}</option>
                       <option value="normal">Normal</option>
-                      <option value="not-sporty">Wenig sportlich</option>
+                      <option value="not-sporty">{t("Wenig sportlich")}</option>
                     </select>
                   </div>
                   <div className="form-group">
-                    <label>Figur</label>
+                    <label>{t("Figur")}</label>
                     <select
                       value={profile.figure}
                       onChange={(e) => handleChange('figure', e.target.value)}
                       className="form-input-field"
                     >
-                      <option value="slim">Schlank</option>
+                      <option value="slim">{t("Schlank")}</option>
                       <option value="normal">Normal</option>
-                      <option value="curvy">Kurvig</option>
-                      <option value="muscular">Muskulös</option>
+                      <option value="curvy">{t("Kurvig")}</option>
+                      <option value="muscular">{t("Muskulös")}</option>
                     </select>
                   </div>
                 </div>
               </div>
 
               <div className="form-section">
-                <h2>Über mich</h2>
+                <h2>{t("Über mich")}</h2>
 
                 <div className="form-group">
                   <label>Bio ({profile.bio.length}/200 Zeichen)</label>
@@ -403,7 +405,7 @@ export const ProfileEdit: React.FC = () => {
                     value={profile.bio}
                     onChange={(e) => handleChange('bio', e.target.value.substring(0, 200))}
                     className="form-input-field textarea"
-                    placeholder="Erzähle etwas über dich..."
+                    placeholder={t("Erzähle etwas über dich...")}
                     rows={4}
                   />
                 </div>
@@ -411,7 +413,7 @@ export const ProfileEdit: React.FC = () => {
 
               {/* Search Purposes */}
               <div className="form-section">
-                <h2>Suchzweck</h2>
+                <h2>{t("Suchzweck")}</h2>
                 <div className="checkbox-group">
                   {[
                     { id: 'hobby', label: 'Hobby' },
@@ -441,7 +443,7 @@ export const ProfileEdit: React.FC = () => {
           {/* Dances Tab */}
           {currentTab === 'dances' && (
             <div className="dances-tab">
-              <h2>Meine Tänze</h2>
+              <h2>{t("Meine Tänze")}</h2>
               <TanzCheckboxGrid
                 selectedDances={profile.selectedDances}
                 onChange={handleDancesChange}
@@ -457,7 +459,7 @@ export const ProfileEdit: React.FC = () => {
           {/* Calendar Tab */}
           {currentTab === 'calendar' && (
             <div className="calendar-tab">
-              <h2>Verfügbarkeit (Diese Woche)</h2>
+              <h2>{t("Verfügbarkeit (Diese Woche)")}</h2>
               <div className="calendar-grid">
                 {days.map((day, idx) => (
                   <button
@@ -478,7 +480,7 @@ export const ProfileEdit: React.FC = () => {
           {/* Photos Tab */}
           {currentTab === 'photos' && (
             <div className="photos-tab">
-              <h2>Meine Fotos (max. 5)</h2>
+              <h2>{t("Meine Fotos (max. 5)")}</h2>
               <div className="photos-grid">
                 {profile.photos.map((photo, idx) => (
                   <div key={idx} className="photo-item">
@@ -499,7 +501,7 @@ export const ProfileEdit: React.FC = () => {
                 {profile.photos.length < 5 && (
                   <label className="photo-upload">
                     <Upload size={28} />
-                    <span>Foto hinzufügen</span>
+                    <span>{t("Foto hinzufügen")}</span>
                     <input
                       type="file"
                       accept="image/*"
@@ -509,7 +511,7 @@ export const ProfileEdit: React.FC = () => {
                   </label>
                 )}
               </div>
-              <p className="photos-hint">Hochwertige Fotos erhalten mehr Matches!</p>
+              <p className="photos-hint">{t("Hochwertige Fotos erhalten mehr Matches!")}</p>
             </div>
           )}
         </div>

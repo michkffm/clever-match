@@ -1,3 +1,4 @@
+import { useTranslation } from "../utils/translations";
 import React, { useEffect, useState } from 'react';
 import {
   Bell,
@@ -19,6 +20,7 @@ import './Settings.css';
 type NotificationKey = 'messages' | 'matches' | 'events' | 'likes';
 
 export const Settings: React.FC = () => {
+  const t = useTranslation();
   const { logout, user } = useAuth();
   const { isDarkMode, setDarkMode } = useAppStore();
   const navigate = useNavigate();
@@ -142,7 +144,7 @@ export const Settings: React.FC = () => {
       }
     : {
         notifications: {
-          title: 'Benachrichtigungen',
+          title: t("Benachrichtigungen"),
           messages: 'Nachrichten',
           messagesSubtitle: 'Benachrichtigungen für neue Nachrichten',
           matches: 'Neue Matches',

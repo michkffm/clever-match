@@ -1,3 +1,4 @@
+import { useTranslation } from "../utils/translations";
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Heart, Share2, Flag, X, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -23,6 +24,7 @@ interface UserProfile {
 }
 
 export const Profile: React.FC = () => {
+  const t = useTranslation();
   const navigate = useNavigate();
   const { id } = useParams();
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
@@ -128,7 +130,7 @@ export const Profile: React.FC = () => {
   };
 
   if (loading) {
-    return <MainLayout><div className="profile-view-container" role="status">Profil wird geladen …</div></MainLayout>;
+    return <MainLayout><div className="profile-view-container" role="status">{t("Profil wird geladen …")}</div></MainLayout>;
   }
 
   if (!profile) {
@@ -136,7 +138,7 @@ export const Profile: React.FC = () => {
       <MainLayout>
         <div className="profile-view-container" role="alert">
           <p>{loadError || 'Profil nicht gefunden.'}</p>
-          <button type="button" onClick={() => navigate('/')}>Zurück</button>
+          <button type="button" onClick={() => navigate('/')}>{t("Zurück")}</button>
         </div>
       </MainLayout>
     );
@@ -232,19 +234,19 @@ export const Profile: React.FC = () => {
               className="btn-edit-profile"
               onClick={() => navigate('/profile/edit')}
             >
-              Profil erstellen
+              {t("Profil erstellen")}
             </button>
           </div>
 
           {/* Bio */}
           <div className="profile-view-section">
-            <h3>Über mich</h3>
+            <h3>{t("Über mich")}</h3>
             <p>{profile.bio}</p>
           </div>
 
           {/* Dances */}
           <div className="profile-view-section">
-            <h3>Liebliche Tänze</h3>
+            <h3>{t("Liebliche Tänze")}</h3>
             <div className="dance-tags">
               {profile.dances.map((dance, idx) => (
                 <span key={idx} className="tag">
@@ -293,8 +295,8 @@ export const Profile: React.FC = () => {
           {showReportModal && (
             <div className="report-modal-overlay">
               <div className="report-modal">
-                <h2>Profil melden</h2>
-                <p>Warum möchtest du dieses Profil melden?</p>
+                <h2>{t("Profil melden")}</h2>
+                <p>{t("Warum möchtest du dieses Profil melden?")}</p>
 
                 <div className="report-options">
                   <button
@@ -319,7 +321,7 @@ export const Profile: React.FC = () => {
                     onClick={() => handleReport('other')}
                     className="report-option"
                   >
-                    Sonstiges
+                    {t("Sonstiges")}
                   </button>
                 </div>
 

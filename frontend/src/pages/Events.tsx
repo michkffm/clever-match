@@ -1,3 +1,4 @@
+import { useTranslation } from "../utils/translations";
 import React, { useEffect, useState } from 'react';
 import { MapPin, List, Filter } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
@@ -25,6 +26,7 @@ function mapEventToCard(event: Event): EventCardData {
 }
 
 export const Events: React.FC = () => {
+  const t = useTranslation();
   const location = useLocation();
   const [activeTab, setActiveTab] = useState<'list' | 'map'>('list');
   const [events, setEvents] = useState<EventCardData[]>([]);
@@ -96,9 +98,9 @@ export const Events: React.FC = () => {
     <MainLayout>
       <div className="events-container">
         <div className="events-header">
-          <h1>Tanzevents</h1>
+          <h1>{t("Tanzevents")}</h1>
           {highlightId && (
-            <span className="events-highlight-badge">Treffer</span>
+            <span className="events-highlight-badge">{t("Treffer")}</span>
           )}
           <button
             onClick={() => setShowFilter(!showFilter)}
@@ -143,8 +145,8 @@ export const Events: React.FC = () => {
             {events.length === 0 ? (
               <div className="events-map-placeholder">
                 <MapPin size={48} />
-                <h2>Keine Events verfügbar</h2>
-                <p>Sobald Events verfügbar sind, wird die Karte angezeigt.</p>
+                <h2>{t("Keine Events verfügbar")}</h2>
+                <p>{t("Sobald Events verfügbar sind, wird die Karte angezeigt.")}</p>
               </div>
             ) : (
               <div className="events-map-frame">

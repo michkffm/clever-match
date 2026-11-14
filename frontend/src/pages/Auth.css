@@ -302,3 +302,13 @@
 :root[data-theme='light'] .input-icon {
   color: rgba(15, 23, 42, 0.5);
 }
+
+.auth-container { min-height:calc(100dvh - 70px); }
+:root[data-theme='dark'] .auth-wrapper { background:var(--color-bg-secondary); color:var(--color-text); }
+:root[data-theme='dark'] .auth-subtitle,
+:root[data-theme='dark'] .auth-footer,
+:root[data-theme='dark'] .form-hint { color:var(--color-text-secondary); }
+.auth-toggle,.auth-links a { min-height:44px; display:inline-flex; align-items:center; }
+.auth-divider span { background:var(--color-bg-secondary); color:var(--color-text-secondary); }
+:root[data-theme='light'] .auth-toggle,
+:root[data-theme='light'] .auth-links a { color:#a21caf; }

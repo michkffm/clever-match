@@ -1,3 +1,4 @@
+import { useTranslation } from "../utils/translations";
 import React from 'react';
 import { Home, Heart, Calendar, User, Settings } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -12,15 +13,17 @@ interface TabConfig {
   path: string;
 }
 
+export const BottomTabs: React.FC = () => {
+  const t = useTranslation();
 const tabs: TabConfig[] = [
   { id: 'home', label: 'Home', icon: <Home size={24} />, path: '/' },
   { id: 'matches', label: 'Matches', icon: <Heart size={24} />, path: '/matches' },
   { id: 'events', label: 'Events', icon: <Calendar size={24} />, path: '/events' },
-  { id: 'profile', label: 'Profil', icon: <User size={24} />, path: '/profile/edit' },
+  { id: 'profile', label: t("Profil"), icon: <User size={24} />, path: '/profile/edit' },
   { id: 'settings', label: 'Settings', icon: <Settings size={24} />, path: '/settings' },
 ];
 
-export const BottomTabs: React.FC = () => {
+
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -44,6 +47,7 @@ export const BottomTabs: React.FC = () => {
           className={`tab-item ${activeTab === tab.id ? 'active' : ''}`}
           onClick={() => handleTabClick(tab.path)}
           aria-label={tab.label}
+          aria-current={activeTab === tab.id ? "page" : undefined}
           title={tab.label}
         >
           <span className="tab-icon">{tab.icon}</span>

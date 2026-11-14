@@ -69,7 +69,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
           notificationCount={notificationCount ?? unreadNotifications}
         />
       )}
-      <main className="main-content">{children}</main>
+      <main id="main-content" tabIndex={-1} className="main-content">{children}</main>
       {showBottomTabs && <BottomTabs />}
       <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} />
     </div>

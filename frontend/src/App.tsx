@@ -1,3 +1,5 @@
+import { DisplayControls } from './components/DisplayControls'
+import { useLanguage } from './utils/i18n'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { useEffect } from 'react'
 import './styles/globals.css'
@@ -137,6 +139,9 @@ function AppRoutes() {
 }
 
 function App() {
+  const language = useLanguage();
+  useEffect(() => { document.documentElement.lang = language; }, [language]);
+  useEffect(() => { document.documentElement.classList.toggle('large-text', localStorage.getItem('large_text') === 'true'); }, []);
   const { isDarkMode } = useAppStore();
 
   useEffect(() => {
@@ -147,6 +152,8 @@ function App() {
   return (
     <Router>
       <AuthProvider>
+        <a className="skip-link" href="#main-content">{language === 'en' ? 'Skip to content' : 'Zum Inhalt springen'}</a>
+        <DisplayControls />
         <NotificationContainer />
         <AppRoutes />
       </AuthProvider>

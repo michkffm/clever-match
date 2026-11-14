@@ -1,3 +1,4 @@
+import { useTranslation } from "../utils/translations";
 import React, { useState, useEffect } from 'react';
 import { Eye, EyeOff, Mail, Lock, User, MapPin } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -13,6 +14,7 @@ interface AuthPageProps {
 }
 
 export const Auth: React.FC<AuthPageProps> = ({ mode = 'login', onLoginSuccess }) => {
+  const t = useTranslation();
   const navigate = useNavigate();
   const { login, loginAsGuest, register, error: authError, clearError } = useAuth();
 
@@ -39,7 +41,7 @@ export const Auth: React.FC<AuthPageProps> = ({ mode = 'login', onLoginSuccess }
 
     // Validation
     if (!validateEmail(email)) {
-      setLocalError('Bitte gib eine gültige E-Mail ein');
+      setLocalError(t("Bitte gib eine gültige E-Mail ein"));
       return;
     }
 
@@ -51,11 +53,11 @@ export const Auth: React.FC<AuthPageProps> = ({ mode = 'login', onLoginSuccess }
       }
 
       if (!firstName.trim() || !lastName.trim()) {
-        setLocalError('Vor- und Nachname sind erforderlich');
+        setLocalError(t("Vor- und Nachname sind erforderlich"));
         return;
       }
       if (!zipCode.trim()) {
-        setLocalError('Postleitzahl ist erforderlich');
+        setLocalError(t("Postleitzahl ist erforderlich"));
         return;
       }
 
@@ -90,34 +92,34 @@ export const Auth: React.FC<AuthPageProps> = ({ mode = 'login', onLoginSuccess }
       return;
     }
 
-    setLocalError('Gastzugang konnte nicht gestartet werden. Bitte erneut versuchen.');
+    setLocalError(t("Gastzugang konnte nicht gestartet werden. Bitte erneut versuchen."));
   };
 
   const handleForgotPassword = async () => {
     clearError();
     setLocalError('');
     if (!validateEmail(email)) {
-      setLocalError('Bitte gib zuerst deine gültige E-Mail-Adresse ein.');
+      setLocalError(t("Bitte gib zuerst deine gültige E-Mail-Adresse ein."));
       return;
     }
 
     const response = await apiClient.requestPasswordReset(email);
     setLocalError(response.error
-      ? 'Passwort-Zurücksetzen ist derzeit nicht verfügbar.'
-      : 'Wenn ein Konto existiert, erhältst du eine E-Mail zum Zurücksetzen.');
+      ? t("Passwort-Zurücksetzen ist derzeit nicht verfügbar.")
+      : t("Wenn ein Konto existiert, erhältst du eine E-Mail zum Zurücksetzen."));
   };
 
   const displayError = localError || authError;
 
   return (
-    <div className="auth-container">
+    <main id="main-content" tabIndex={-1} className="auth-container">
       <div className="auth-wrapper">
         <div className="auth-header">
           <div style={{ marginBottom: '16px' }}>
             <TanzMatchLogo size="medium" showText={true} />
           </div>
           <p className="auth-subtitle">
-            {isRegister ? 'Profil erstellen' : 'Willkommen zurück'}
+            {isRegister ? t("Profil erstellen") : t("Willkommen zurück")}
           </p>
         </div>
 
@@ -125,13 +127,13 @@ export const Auth: React.FC<AuthPageProps> = ({ mode = 'login', onLoginSuccess }
           {/* Email */}
           <div className="form-group">
             <label htmlFor="email" className="form-label">
-              E-Mail Adresse
+              {t("E-Mail Adresse")}
             </label>
             <div className="input-wrapper">
               <Mail size={18} className="input-icon" />
               <input
                 id="email"
-                type="email"
+                type="email" autoComplete="email" required
                 className={`form-input ${displayError && !validateEmail(email) ? 'error' : ''}`}
                 placeholder="deine@email.de"
                 value={email}
@@ -144,7 +146,7 @@ export const Auth: React.FC<AuthPageProps> = ({ mode = 'login', onLoginSuccess }
           {isRegister && (
             <div className="form-group">
               <label htmlFor="firstName" className="form-label">
-                Vorname
+                {t("Vorname")}
               </label>
               <div className="input-wrapper">
                 <User size={18} className="input-icon" />
@@ -164,7 +166,7 @@ export const Auth: React.FC<AuthPageProps> = ({ mode = 'login', onLoginSuccess }
           {isRegister && (
             <div className="form-group">
               <label htmlFor="lastName" className="form-label">
-                Nachname
+                {t("Nachname")}
               </label>
               <div className="input-wrapper">
                 <User size={18} className="input-icon" />
@@ -184,7 +186,7 @@ export const Auth: React.FC<AuthPageProps> = ({ mode = 'login', onLoginSuccess }
           {isRegister && (
             <div className="form-group">
               <label htmlFor="zipCode" className="form-label">
-                Postleitzahl
+                {t("Postleitzahl")}
               </label>
               <div className="input-wrapper">
                 <MapPin size={18} className="input-icon" />
@@ -203,12 +205,12 @@ export const Auth: React.FC<AuthPageProps> = ({ mode = 'login', onLoginSuccess }
           {/* Password */}
           <div className="form-group">
             <label htmlFor="password" className="form-label">
-              Passwort
+              {t("Passwort")}
             </label>
             <div className="input-wrapper">
               <Lock size={18} className="input-icon" />
               <input
-                id="password"
+                id="password" required autoComplete={isRegister ? "new-password" : "current-password"}
                 type={showPassword ? 'text' : 'password'}
                 className={`form-input ${displayError && password.length < 8 ? 'error' : ''}`}
                 placeholder="••••••••"
@@ -217,19 +219,19 @@ export const Auth: React.FC<AuthPageProps> = ({ mode = 'login', onLoginSuccess }
               />
               <button
                 type="button"
-                className="input-icon-button"
+                className="input-icon-button" aria-label={showPassword ? t("Passwort verbergen") : t("Passwort anzeigen")} aria-pressed={showPassword}
                 onClick={() => setShowPassword(!showPassword)}
               >
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
             {isRegister && (
-              <p className="form-hint">Mindestens 8 Zeichen, Großbuchstabe, Zahl</p>
+              <p className="form-hint">{t("Mindestens 8 Zeichen, Großbuchstabe, Zahl")}</p>
             )}
           </div>
 
           {/* Error Message */}
-          {displayError && <div className="form-error">{displayError}</div>}
+          {displayError && <div className="form-error" role="alert">{displayError}</div>}
 
           {/* Submit Button */}
           <button
@@ -238,16 +240,16 @@ export const Auth: React.FC<AuthPageProps> = ({ mode = 'login', onLoginSuccess }
             disabled={false}
           >
             {isRegister ? (
-              'Konto erstellen'
+              t("Konto erstellen")
             ) : (
-              'Anmelden'
+              t("Anmelden")
             )}
           </button>
         </form>
 
         {/* Divider */}
         <div className="auth-divider">
-          <span>oder</span>
+          <span>{t("oder")}</span>
         </div>
 
         {/* Google Sign-In */}
@@ -270,13 +272,13 @@ export const Auth: React.FC<AuthPageProps> = ({ mode = 'login', onLoginSuccess }
               fill="#EA4335"
             />
           </svg>
-          Mit Google anmelden
+          {t("Mit Google anmelden")}
         </button>
 
         {/* Toggle & Links */}
         <div className="auth-footer">
           <p>
-            {isRegister ? 'Bereits ein Konto? ' : 'Noch kein Konto? '}
+            {isRegister ? t("Bereits ein Konto? ") : t("Noch kein Konto? ")}
             <button
               type="button"
               className="auth-toggle"
@@ -287,7 +289,7 @@ export const Auth: React.FC<AuthPageProps> = ({ mode = 'login', onLoginSuccess }
                 navigate(newPath);
               }}
             >
-              {isRegister ? 'Anmelden' : 'Registrieren'}
+              {isRegister ? t("Anmelden") : t("Registrieren")}
             </button>
           </p>
 
@@ -295,17 +297,17 @@ export const Auth: React.FC<AuthPageProps> = ({ mode = 'login', onLoginSuccess }
             <ul className="auth-links">
               <li>
                 <button type="button" className="auth-toggle" onClick={() => void handleForgotPassword()}>
-                  Passwort vergessen?
+                  {t("Passwort vergessen?")}
                 </button>
               </li>
               <li>
-                <a href="#guest" onClick={handleGuestContinue}>Als Gast fortfahren</a>
+                <a href="#guest" onClick={handleGuestContinue}>{t("Als Gast fortfahren")}</a>
               </li>
             </ul>
           )}
         </div>
       </div>
-    </div>
+    </main>
   );
 };
 
