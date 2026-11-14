@@ -3,7 +3,7 @@ services:
     name: tanzmatch-api
     runtime: node
     plan: free
-    buildCommand: npm ci && npm run build -w packages/types && npm run build:backend
+    buildCommand: npm ci --include=dev && npm run build -w packages/types && npm run build:backend
     startCommand: npm run start:backend
     healthCheckPath: /api/health
     envVars:
@@ -28,7 +28,7 @@ services:
   - type: web
     name: tanzmatch-web
     runtime: static
-    buildCommand: npm ci && npm run build:frontend
+    buildCommand: npm ci --include=dev && npm run build:frontend
     staticPublishPath: frontend/dist
     routes:
       - type: rewrite
