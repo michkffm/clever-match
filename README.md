@@ -1,6 +1,18 @@
-r# 💃 TanzMatch - Monorepo
+# TanzMatch
 
-> Eine moderne Dating-App für Tanzbegeisterte. Frontend (React), Backend (Node.js) & Shared Types im Monorepo.
+[Live-App](https://tanzmatch-web.onrender.com/) · [GitHub](https://github.com/michkffm/tanzmatch)
+
+TanzMatch ist eine Fullstack-App zum Finden von Tanzpartnern mit Profilen, Matching und Chat. Das React-Frontend und die Express-API sind auf Render veröffentlicht und mit MongoDB Atlas verbunden.
+
+![TanzMatch – Anmeldung auf dem Desktop](docs/tanzmatch-desktop.png)
+
+## Mobile Ansicht
+
+<img src="docs/tanzmatch-mobile.png" alt="TanzMatch – Anmeldung auf einem Smartphone" width="390">
+
+## Entwicklungsstand
+
+Profile, Matching und Chat sind implementiert. Passwort-Reset über Resend, Benachrichtigungen und die Bereinigung vorhandener Frontend-Lintfehler sind in Arbeit. TanzMatch bleibt kostenlos; es gibt derzeit keine bezahlten Abos.
 
 ## 📁 Projektstruktur
 
