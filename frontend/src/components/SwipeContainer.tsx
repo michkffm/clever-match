@@ -84,6 +84,7 @@ export const SwipeContainer: React.FC<SwipeContainerProps> = ({
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
+      <div className="swipe-toolbar">
       {/* Carousel overlay info */}
       <div className="carousel-position">
         {currentIndex + 1} / {profiles.length}
@@ -93,6 +94,8 @@ export const SwipeContainer: React.FC<SwipeContainerProps> = ({
       <button className="filter-button" onClick={onFilterClick} aria-label="Filter">
         🔍 Filter
       </button>
+
+      </div>
 
       {/* Main card */}
       <div className="card-container">

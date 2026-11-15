@@ -12,6 +12,7 @@ Clever Match is a dating app for meeting new people, finding compatible matches,
 
 - Registration with mandatory email confirmation, sign-in, and individual guest access
 - Profile editing and discovering new people
+- Search preferences with age range and distance slider
 - Save interests, hobbies, and dating intentions in your profile
 - Likes, one shared conversation per mutual match, and live chat
 - Events and event registration
@@ -60,6 +61,8 @@ npm audit
 npm run build
 npm run start:backend
 ```
+
+Additional Safari-engine mobile layout checks: `npx playwright install webkit`, then `npx playwright test e2e/mobile-layout.spec.ts --browser=webkit`. This does not replace testing on a physical iPhone.
 
 The production build compiles the shared types first, followed by the frontend and backend. Browser checks start a local frontend test server. API tests use a temporary local MongoDB without production data; the MongoDB test binary is downloaded on the first run.
 

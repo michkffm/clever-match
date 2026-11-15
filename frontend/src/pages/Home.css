@@ -155,3 +155,10 @@
     height: min(62vw, 220px);
   }
 }
+
+@media (max-width: 640px) {
+  .home-hero { flex-direction: row; gap: .75rem; justify-content: flex-start; }
+  .home-logo-wrap { width: 3.5rem; height: 3.5rem; flex: 0 0 auto; animation: none; }
+  .home-brand-title { margin: 0; font-size: clamp(1.5rem, 6vw, 2rem); }
+  .home-container { padding-inline: .5rem; }
+}
