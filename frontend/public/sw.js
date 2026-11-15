@@ -1,5 +1,5 @@
 const CACHE_NAME = 'tanzmatch-static-v2';
-const PRECACHE_URLS = ['/', '/index.html', '/tanzmatch.svg', '/manifest.webmanifest'];
+const PRECACHE_URLS = ['/', '/index.html', '/clever-match.svg', '/manifest.webmanifest'];
 
 self.addEventListener('install', (event) => {
   // Delete ALL old caches on install so stale JS is never served

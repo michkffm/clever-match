@@ -18,7 +18,7 @@ export const CleverMatchLogo: React.FC<LogoProps> = ({ size = 'medium', showText
     <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
     <img
       src="/clever-match.svg"
-      alt="Clever Match"
+      alt={showText ? '' : 'Clever Match'}
       width={width}
       height={height}
       style={{
@@ -27,7 +27,6 @@ export const CleverMatchLogo: React.FC<LogoProps> = ({ size = 'medium', showText
         height,
         objectFit: 'contain',
       }}
-      aria-hidden={showText ? undefined : true}
     />
     {showText && <span style={{ fontSize: size === 'small' ? 18 : 24, fontWeight: 700, color: 'var(--color-text)' }}>Clever Match</span>}
     </div>

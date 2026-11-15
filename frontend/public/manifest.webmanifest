@@ -5,16 +5,16 @@
   "start_url": "/",
   "display": "standalone",
   "background_color": "#f5f5f5",
-  "theme_color": "#4CAF50",
+  "theme_color": "#17152b",
   "icons": [
     {
       "src": "/clever-match.svg",
-      "sizes": "192x192",
+      "sizes": "any",
       "type": "image/svg+xml"
     },
     {
       "src": "/clever-match.svg",
-      "sizes": "512x512",
+      "sizes": "any",
       "type": "image/svg+xml"
     }
   ]
