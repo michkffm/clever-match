@@ -1,3 +1,4 @@
+import VerifyEmail from './pages/VerifyEmail'
 import Privacy from './pages/Privacy'
 import ResetPassword from './pages/ResetPassword'
 import { DisplayControls } from './components/DisplayControls'
@@ -29,6 +30,7 @@ import Notifications from './pages/Notifications'
 function AppRoutes() {
   return (
     <Routes>
+      <Route path="/verify-email" element={<VerifyEmail />} />
       <Route path="/privacy" element={<Privacy />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       {/* Public Routes */}

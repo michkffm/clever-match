@@ -141,6 +141,12 @@ class ApiClient {
         this.onSessionExpired?.();
       }
 
+      if (response.status === 403 && responseBody?.code === 'EMAIL_NOT_VERIFIED') {
+        storageService.clearUser();
+        this.clearToken();
+        this.onSessionExpired?.();
+      }
+
       if (!response.ok) {
         return {
           error:
@@ -196,10 +202,18 @@ class ApiClient {
     lastName: string,
     zipCode: string
   ) {
-    return this.request('/auth/register', {
+    return this.request<{ verificationRequired: boolean; verificationSent: boolean }>('/auth/register', {
       method: 'POST',
-      body: { email, password, firstName, lastName, zipCode },
+      body: { email, password, firstName, lastName, zipCode, language: document.documentElement.lang },
     });
+  }
+
+  async resendVerification(email: string) {
+    return this.request('/auth/resend-verification', { method: 'POST', body: { email, language: document.documentElement.lang } });
+  }
+
+  async verifyEmail(token: string) {
+    return this.request('/auth/verify-email', { method: 'POST', body: { token } });
   }
 
   async logout() {

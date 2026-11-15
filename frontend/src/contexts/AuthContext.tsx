@@ -28,6 +28,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    const expire = () => useAuthStore.setState({ user: null, isAuthenticated: false, isLoading: false });
+    window.addEventListener('auth-session-expired', expire);
+    return () => window.removeEventListener('auth-session-expired', expire);
+  }, []);
+
   const value: AuthContextType = {
     user,
     isAuthenticated,

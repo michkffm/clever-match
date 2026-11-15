@@ -10,7 +10,7 @@ Clever Match is a dating app for meeting new people, finding compatible matches,
 
 ## Features
 
-- Registration, sign-in, and individual guest access
+- Registration with mandatory email confirmation, sign-in, and individual guest access
 - Profile editing and discovering new people
 - Save interests, hobbies, and dating intentions in your profile
 - Likes, mutual matches, and chat
@@ -26,6 +26,8 @@ Clever Match is a dating app for meeting new people, finding compatible matches,
 The screenshots show the current sign-in page: German in light mode and English in dark mode.
 
 ## Development status
+
+Existing accounts must also confirm their email address. A new confirmation link can be requested on the sign-in page. Unconfirmed accounts cannot access profiles, matches, or chat; older guest sessions can be replaced by starting a new guest session.
 
 Clever Match remains free. Password reset through Resend, saved notification preferences, and protected chats are implemented. Email delivery requires the service variables described below. A complete WCAG conformance assessment has not been performed.
 

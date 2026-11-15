@@ -16,7 +16,7 @@ interface AuthPageProps {
 export const Auth: React.FC<AuthPageProps> = ({ mode = 'login', onLoginSuccess }) => {
   const t = useTranslation();
   const navigate = useNavigate();
-  const { login, loginAsGuest, register, error: authError, clearError } = useAuth();
+  const { login, loginAsGuest, error: authError, clearError } = useAuth();
 
   const [isRegister, setIsRegister] = useState(mode === 'register');
   const [email, setEmail] = useState('');
@@ -25,6 +25,8 @@ export const Auth: React.FC<AuthPageProps> = ({ mode = 'login', onLoginSuccess }
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [zipCode, setZipCode] = useState('');
+  const [notice, setNotice] = useState('');
+  const [busy, setBusy] = useState(false);
   const [localError, setLocalError] = useState('');
 
   useEffect(() => {
@@ -38,6 +40,7 @@ export const Auth: React.FC<AuthPageProps> = ({ mode = 'login', onLoginSuccess }
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLocalError('');
+    setNotice('');
 
     // Validation
     if (!validateEmail(email)) {
@@ -61,11 +64,15 @@ export const Auth: React.FC<AuthPageProps> = ({ mode = 'login', onLoginSuccess }
         return;
       }
 
-      const success = await register(email, password, firstName, lastName, zipCode);
-      if (success) {
-        onLoginSuccess?.();
-        navigate('/');
-      }
+      setBusy(true);
+      const response = await apiClient.register(email, password, firstName, lastName, zipCode);
+      setBusy(false);
+      if (response.error) { setLocalError(t(response.error)); return; }
+      setPassword('');
+      setNotice(response.data?.verificationSent
+        ? t("Bitte bestätige deine E-Mail-Adresse über den Link in deinem Postfach. Erst danach kannst du dich anmelden.")
+        : t("Dein Konto wartet auf Bestätigung. Der Versand ist fehlgeschlagen. Fordere den Link bitte erneut an."));
+      setIsRegister(false);
     } else {
       const success = await login(email, password);
       if (success) {
@@ -104,7 +111,7 @@ export const Auth: React.FC<AuthPageProps> = ({ mode = 'login', onLoginSuccess }
       : t("Wenn ein Konto existiert, erhältst du eine E-Mail zum Zurücksetzen."));
   };
 
-  const displayError = localError || authError;
+  const displayError = localError || (authError === 'Please verify your email address before signing in.' ? t("Bitte bestätige zuerst deine E-Mail-Adresse.") : authError);
 
   return (
     <main id="main-content" tabIndex={-1} className="auth-container">
@@ -226,6 +233,8 @@ export const Auth: React.FC<AuthPageProps> = ({ mode = 'login', onLoginSuccess }
             )}
           </div>
 
+          {notice && <p role="status">{notice}</p>}
+
           {/* Error Message */}
           {displayError && <div className="form-error" role="alert">{displayError}</div>}
 
@@ -233,7 +242,7 @@ export const Auth: React.FC<AuthPageProps> = ({ mode = 'login', onLoginSuccess }
           <button
             type="submit"
             className={`btn-submit`}
-            disabled={false}
+            disabled={busy}
           >
             {isRegister ? (
               t("Konto erstellen")
@@ -242,6 +251,11 @@ export const Auth: React.FC<AuthPageProps> = ({ mode = 'login', onLoginSuccess }
             )}
           </button>
         </form>
+        <button type="button" className="auth-toggle" disabled={busy} onClick={async () => {
+          if (!validateEmail(email)) { setLocalError(t("Bitte gib zuerst deine gültige E-Mail-Adresse ein.")); return; }
+          setBusy(true); const result = await apiClient.resendVerification(email); setBusy(false);
+          setNotice(result.error ? t("Der Bestätigungslink konnte nicht angefordert werden.") : t("Falls dein Konto noch unbestätigt ist, erhältst du einen neuen Bestätigungslink."));
+        }}>{t("Bestätigungslink erneut senden")}</button>
 
         {/* Toggle & Links */}
         <div className="auth-footer">

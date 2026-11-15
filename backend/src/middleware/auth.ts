@@ -7,6 +7,10 @@ const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '15m';
 const REFRESH_TOKEN_EXPIRES_IN = process.env.REFRESH_TOKEN_EXPIRES_IN || '30d';
 
+export function mayUseAccount(user: { isGuest?: boolean | null; emailVerifiedAt?: Date | null }): boolean {
+  return user.isGuest === true || user.emailVerifiedAt instanceof Date;
+}
+
 export interface AuthenticatedRequest extends Request {
   authUserId?: string;
   authVersion?: string;
@@ -132,9 +136,13 @@ export async function requireAuth(
   }
 
   try {
-    const user = await UserModel.findById(req.authUserId).select('authVersion').lean();
+    const user = await UserModel.findById(req.authUserId).select('authVersion isGuest emailVerifiedAt').lean();
     if (!user || (user.authVersion ?? '') !== (req.authVersion ?? '')) {
       res.status(401).json({ error: 'Session expired', code: 'AUTH_REQUIRED' });
+      return;
+    }
+    if (!mayUseAccount(user)) {
+      res.status(403).json({ error: 'Please verify your email address before signing in.', code: 'EMAIL_NOT_VERIFIED' });
       return;
     }
     next();

@@ -1,4 +1,5 @@
-import { passwordResetConfigured, sendPasswordReset } from './config/email.js';
+import { mayUseAccount } from './middleware/auth.js';
+import { passwordResetConfigured, sendPasswordReset, sendEmailVerification } from './config/email.js';
 import 'dotenv/config';
 import crypto from 'crypto';
 import http from 'http';
@@ -250,6 +251,8 @@ type PersistedUser = {
   _id: { toString(): string };
   email: string;
   password: string;
+  isGuest?: boolean | null;
+  emailVerifiedAt?: Date | null;
   authVersion?: string | null;
   gender?: 'M' | 'W' | 'D' | 'other' | null;
   height?: number | null;
@@ -795,6 +798,8 @@ app.post('/api/auth/login', authLimiter, asyncRoute(async (req: Request, res: Re
     return sendError(res, 401, 'Invalid credentials', 'INVALID_CREDENTIALS');
   }
 
+  if (!mayUseAccount(user)) return sendError(res, 403, 'Please verify your email address before signing in.', 'EMAIL_NOT_VERIFIED');
+
   if (needsPasswordRehash(user.password)) {
     user.password = await hashPassword(String(password));
     await user.save();
@@ -838,6 +843,7 @@ app.post('/api/auth/login', authLimiter, asyncRoute(async (req: Request, res: Re
 app.post('/api/auth/guest', authLimiter, asyncRoute(async (_req: Request, res: Response) => {
   const user = await UserModel.create({
     email: `guest-${crypto.randomUUID()}@tanzmatch.local`,
+    isGuest: true,
     password: await hashPassword(crypto.randomUUID()),
     firstName: 'Gast',
     lastName: 'Nutzer',
@@ -895,6 +901,7 @@ app.post('/api/auth/register', authLimiter, asyncRoute(async (req: Request, res:
   }
 
   const normalizedEmail = email.trim().toLowerCase();
+  if (normalizedEmail.endsWith('@tanzmatch.local')) return sendError(res, 400, 'Email domain is reserved', 'VALIDATION_ERROR');
   if (normalizedEmail.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
     return sendError(res, 400, 'Email address is invalid', 'VALIDATION_ERROR');
   }
@@ -919,36 +926,46 @@ app.post('/api/auth/register', authLimiter, asyncRoute(async (req: Request, res:
     zipCode: zipCode.trim(),
   });
 
-  const token = signAuthToken({
-    sub: newUser._id.toString(),
-    email: newUser.email,
-    role: newUser.role,
+  const verificationSent = await issueEmailVerification(newUser._id.toString(), normalizedEmail, req.body.language);
+  res.status(201).json({ verificationRequired: true, verificationSent });
+}));
+
+const emailVerificationLimiter = rateLimit({ windowMs: 60 * 60 * 1000, max: 10, standardHeaders: true, legacyHeaders: false });
+
+async function issueEmailVerification(userId: string, email: string, language: unknown): Promise<boolean> {
+  const token = crypto.randomBytes(32).toString('hex');
+  const digest = hashToken(token);
+  const updated = await UserModel.updateOne({ _id: userId, emailVerifiedAt: null, isGuest: { $ne: true },
+    $or: [{ emailVerificationExpiresAt: { $exists: false } }, { emailVerificationExpiresAt: { $lte: new Date(Date.now() + 29 * 60 * 1000) } }],
+  }, { $set: {
+    emailVerificationToken: digest, emailVerificationExpiresAt: new Date(Date.now() + 30 * 60 * 1000),
+  } });
+  if (!updated.modifiedCount) return true;
+  try { await sendEmailVerification(email, token, language === 'en' ? 'en' : 'de'); return true; }
+  catch {
+    await UserModel.updateOne({ _id: userId, emailVerificationToken: digest }, { $unset: { emailVerificationToken: 1, emailVerificationExpiresAt: 1 } });
+    console.error('[Email] Verification delivery failed');
+    return false;
+  }
+}
+
+app.post('/api/auth/resend-verification', emailVerificationLimiter, asyncRoute(async (req: Request, res: Response) => {
+  const { email, language } = req.body;
+  if (typeof email !== 'string' || email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return sendError(res, 400, 'Valid email required', 'VALIDATION_ERROR');
+  const user = await UserModel.findOne({ email: email.trim().toLowerCase(), emailVerifiedAt: null, isGuest: { $ne: true } });
+  if (user) await issueEmailVerification(user._id.toString(), user.email, language);
+  res.json({ message: 'If confirmation is needed, an email will be sent.' });
+}));
+
+app.post('/api/auth/verify-email', emailVerificationLimiter, asyncRoute(async (req: Request, res: Response) => {
+  const { token } = req.body;
+  if (typeof token !== 'string' || !/^[a-f0-9]{64}$/.test(token)) return sendError(res, 400, 'Invalid or expired verification link', 'INVALID_VERIFICATION_TOKEN');
+  const user = await UserModel.findOneAndUpdate({ emailVerificationToken: hashToken(token), emailVerificationExpiresAt: { $gt: new Date() }, emailVerifiedAt: null, isGuest: { $ne: true } }, {
+    $set: { emailVerifiedAt: new Date(), authVersion: crypto.randomUUID() },
+    $unset: { emailVerificationToken: 1, emailVerificationExpiresAt: 1, refreshToken: 1, refreshTokenExpiresAt: 1 },
   });
-
-  const refreshToken = signRefreshToken({
-    sub: newUser._id.toString(),
-    email: newUser.email,
-    role: newUser.role,
-  });
-
-  newUser.refreshToken = hashToken(refreshToken);
-  newUser.refreshTokenExpiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
-  const registerMeta = getRequestMetadata(req);
-  newUser.refreshTokenIp = registerMeta.ip;
-  newUser.refreshTokenUserAgent = registerMeta.userAgent;
-  await newUser.save();
-
-  res.cookie(REFRESH_COOKIE_NAME, refreshToken, {
-    ...refreshCookieOptions,
-    maxAge: 30 * 24 * 60 * 60 * 1000,
-  });
-
-  const response: AuthResponse = {
-    token,
-    user: toUserResponse(newUser),
-  };
-
-  res.status(201).json(response);
+  if (!user) return sendError(res, 400, 'Invalid or expired verification link', 'INVALID_VERIFICATION_TOKEN');
+  res.json({ message: 'Email confirmed. Please sign in.' });
 }));
 
 app.post('/api/auth/logout', requireSameOrigin, asyncRoute(async (req: Request, res: Response) => {
@@ -1099,6 +1116,8 @@ app.post('/api/auth/refresh', requireSameOrigin, refreshLimiter, asyncRoute(asyn
   if (!user) {
     return sendError(res, 404, 'User not found', 'USER_NOT_FOUND');
   }
+
+  if (!mayUseAccount(user)) { res.clearCookie(REFRESH_COOKIE_NAME, refreshCookieOptions); return sendError(res, 403, 'Please verify your email address before signing in.', 'EMAIL_NOT_VERIFIED'); }
 
   // Check if stored refresh token matches and hasn't expired
   const refreshMeta = getRequestMetadata(req);
@@ -1347,6 +1366,7 @@ app.get('/api/profiles', requireAuth, asyncRoute(async (req: Request, res: Respo
   const availableProfiles = await UserModel.find({
     _id: { $ne: currentUserId, $nin: Array.from(matchedUserIds) },
     privateProfile: { $ne: true },
+    $or: [{ isGuest: true }, { emailVerifiedAt: { $type: 'date' } }],
   })
     .sort({ createdAt: -1 })
     .limit(50);
@@ -1399,7 +1419,7 @@ app.get('/api/profiles', requireAuth, asyncRoute(async (req: Request, res: Respo
 app.get('/api/profiles/:id', requireAuth, asyncRoute(async (req: Request, res: Response) => {
   const user = await UserModel.findById(req.params.id);
 
-  if (!user) {
+  if (!user || !mayUseAccount(user)) {
     return sendError(res, 404, 'Profile not found', 'PROFILE_NOT_FOUND');
   }
 
@@ -1502,6 +1522,9 @@ app.post('/api/matches', requireAuth, asyncRoute(async (req: Request, res: Respo
   if (currentUser._id.toString() === String(userId)) {
     return sendError(res, 400, 'Cannot match with yourself', 'VALIDATION_ERROR');
   }
+
+  const targetUser = await UserModel.findById(String(userId));
+  if (!targetUser || !mayUseAccount(targetUser)) return sendError(res, 404, 'Profile not found', 'PROFILE_NOT_FOUND');
 
   const match = await MatchModel.findOneAndUpdate(
     {
@@ -1921,8 +1944,8 @@ async function startServer(): Promise<void> {
       if (!target || !auth || (request.headers.origin && !isOriginAllowed(request.headers.origin))) { socket.destroy(); return; }
       const payload = jwt.decode(token);
       const version = payload && typeof payload === 'object' && typeof payload.version === 'string' ? payload.version : '';
-      const user = await UserModel.findById(auth.userId).select('authVersion').lean();
-      if (!user || (user.authVersion ?? '') !== version) { socket.destroy(); return; }
+      const user = await UserModel.findById(auth.userId).select('authVersion isGuest emailVerifiedAt').lean();
+      if (!user || !mayUseAccount(user) || (user.authVersion ?? '') !== version) { socket.destroy(); return; }
       target.handleUpgrade(request, socket, head, ws => target.emit('connection', ws, request));
     })().catch(() => socket.destroy());
   });

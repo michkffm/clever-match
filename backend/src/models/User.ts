@@ -23,6 +23,10 @@ const userSchema = new Schema(
   {
     email: { type: String, required: true, unique: true, index: true, trim: true, lowercase: true },
     password: { type: String, required: true },
+    isGuest: { type: Boolean, default: false },
+    emailVerifiedAt: { type: Date },
+    emailVerificationToken: { type: String },
+    emailVerificationExpiresAt: { type: Date },
     authVersion: { type: String, default: '' },
     firstName: { type: String, required: true, trim: true },
     lastName: { type: String, required: true, trim: true },

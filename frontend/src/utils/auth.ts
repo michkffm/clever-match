@@ -70,7 +70,7 @@ class AuthService {
    * Check if user is already logged in from localStorage
    */
   async initialize(): Promise<User | null> {
-    if (this.isInitialized) return this.getCurrentUser();
+    if (this.isInitialized) return this.accessToken ? this.getCurrentUser() : null;
 
     apiClient.setOnTokenRefreshed((token) => {
       this.accessToken = token;
@@ -80,6 +80,8 @@ class AuthService {
       this.accessToken = null;
       this.refreshFailureCount = 0;
       storageService.clearChatCache();
+      storageService.clearUser();
+      window.dispatchEvent(new Event('auth-session-expired'));
     });
 
     // Older app versions stored access tokens in localStorage. Discard them and
@@ -103,6 +105,10 @@ class AuthService {
       // Ignore refresh errors
     }
 
+    this.accessToken = null;
+    apiClient.clearToken();
+    storageService.clearUser();
+    storageService.clearChatCache();
     this.isInitialized = true;
     return null;
   }
@@ -113,6 +119,7 @@ class AuthService {
   async login(email: string, password: string): Promise<{ user: User; token: string } | null> {
     try {
       const response = await apiClient.login(email, password);
+      if (response.error) throw new Error(response.error);
 
       if (response.data) {
         const { token, user } = response.data as AuthResponse;
@@ -128,8 +135,7 @@ class AuthService {
 
       return null;
     } catch (error) {
-      console.error('[Auth] Login failed:', error);
-      return null;
+      throw error instanceof Error ? error : new Error('Login failed');
     }
   }
 
@@ -170,17 +176,8 @@ class AuthService {
     try {
       const response = await apiClient.register(email, password, firstName, lastName, zipCode);
 
-      if (response.data) {
-        const { token, user } = response.data as AuthResponse;
-
-        // Store token & user
-        storageService.setUser(user);
-        storageService.setLastLogin(Date.now());
-        this.accessToken = token;
-        apiClient.setToken(token);
-        this.scheduleRefresh(token);
-        return { user, token };
-      }
+      // Registration creates a pending account only. It never authenticates the browser.
+      if (response.error) throw new Error(response.error);
 
       return null;
     } catch (error) {

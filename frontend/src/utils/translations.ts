@@ -1,5 +1,13 @@
 import { useLanguage } from "./i18n";
 const english: Record<string, string> = {
+  "Bitte bestätige zuerst deine E-Mail-Adresse.": "Please confirm your email address first.",
+  "Bitte bestätige deine E-Mail-Adresse über den Link in deinem Postfach. Erst danach kannst du dich anmelden.": "Confirm your email using the link in your inbox before signing in.",
+  "Dein Konto wartet auf Bestätigung. Der Versand ist fehlgeschlagen. Fordere den Link bitte erneut an.": "Your account is awaiting confirmation. Delivery failed. Please request another link.",
+  "Der Bestätigungslink konnte nicht angefordert werden.": "Could not request a confirmation link.",
+  "Falls dein Konto noch unbestätigt ist, erhältst du einen neuen Bestätigungslink.": "If your account is still unconfirmed, you will receive a new confirmation link.",
+  "Bestätigungslink erneut senden": "Resend confirmation link",
+  "Please verify your email address before signing in.": "Please verify your email address before signing in.",
+
   "Interessen und Hobbys": "Interests and hobbies",
   "Ich suche": "Looking for",
   "Deine Interessen, durch Kommas getrennt": "Your interests, separated by commas",
