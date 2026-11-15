@@ -112,6 +112,7 @@ export const Auth: React.FC<AuthPageProps> = ({ mode = 'login', onLoginSuccess }
         <div className="auth-header">
           <div style={{ marginBottom: '16px' }}>
             <CleverMatchLogo size="medium" showText={true} />
+            <p>{t("Deine Dating-App zum Kennenlernen, Matchen und Chatten.")}</p>
           </div>
           <p className="auth-subtitle">
             {isRegister ? t("Profil erstellen") : t("Willkommen zurück")}

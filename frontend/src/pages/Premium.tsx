@@ -6,7 +6,7 @@ export default function Premium() {
   const en = useLanguage() === 'en';
   return <MainLayout><section className="settings-container">
     <h1>{en ? 'Clever Match is free' : 'Clever Match ist kostenlos'}</h1>
-    <p>{en ? 'Discover dance partners, match and chat without a subscription. No payment details are required.' : 'Entdecke Tanzpartner, finde Matches und chatte ohne Abonnement. Du benötigst keine Zahlungsdaten.'}</p>
-    <Link to="/">{en ? 'Discover dance partners' : 'Tanzpartner entdecken'}</Link>
+    <p>{en ? 'Meet new people, match and chat without a subscription. No payment details are required.' : 'Lerne neue Menschen kennen, finde Matches und chatte ohne Abonnement. Du benötigst keine Zahlungsdaten.'}</p>
+    <Link to="/">{en ? 'Meet new people' : 'Menschen kennenlernen'}</Link>
   </section></MainLayout>;
 }

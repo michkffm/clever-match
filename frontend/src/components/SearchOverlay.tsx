@@ -13,7 +13,7 @@ type PreviewProfile = {
   city?: string;
   age?: number;
   distance?: number;
-  danceStyles?: string[];
+  hobbies?: string[];
 };
 
 interface SearchOverlayProps {
@@ -105,7 +105,7 @@ export const SearchOverlay: React.FC<SearchOverlayProps> = ({ open, onClose }) =
         profile.firstName,
         profile.lastName,
         profile.city,
-        ...(profile.danceStyles || []),
+        ...(profile.hobbies || []),
       ]
         .filter(Boolean)
         .join(' ')
@@ -135,7 +135,7 @@ export const SearchOverlay: React.FC<SearchOverlayProps> = ({ open, onClose }) =
             <Search size={18} />
             <input
               type="text"
-              placeholder={t("Suche nach Tänzen, Personen, Events...")}
+              placeholder={t("Suche nach Personen und Events...")}
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               autoFocus

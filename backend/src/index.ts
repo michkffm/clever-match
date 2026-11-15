@@ -265,6 +265,8 @@ type PersistedUser = {
   zipCode?: string | null;
   role: 'user' | 'moderator' | 'admin';
   bio: string;
+  hobbies?: string[];
+  datingGoals?: string[];
   interests: string[];
   danceStyles: string[];
   profilePhotos: string[];
@@ -407,6 +409,8 @@ function toProfileResponse(user: PersistedUser): Profile {
   return {
     ...toUserResponse(user),
     bio: user.bio,
+    hobbies: user.hobbies ?? [],
+    datingGoals: user.datingGoals ?? [],
     interests: user.interests,
     danceStyles: user.danceStyles,
     profilePhotos: sanitizedPhotos,
@@ -464,6 +468,8 @@ function toPublicProfileResponse(user: PersistedUser, viewer?: PersistedUser): P
     profilePhotos: sanitizedPhotos,
     danceStyles: user.danceStyles,
     bio: user.bio,
+    hobbies: user.hobbies ?? [],
+    datingGoals: user.datingGoals ?? [],
     interests: user.interests,
   };
 }
@@ -1228,7 +1234,7 @@ app.put('/api/profile', requireAuth, asyncRoute(async (req: Request, res: Respon
   }
 
   if (req.body.bio !== undefined && (typeof req.body.bio !== 'string' || req.body.bio.length > 2000)) return sendError(res, 400, 'Invalid bio', 'VALIDATION_ERROR');
-  for (const key of ['interests', 'danceStyles', 'customDances']) {
+  for (const key of ['hobbies', 'datingGoals', 'interests', 'danceStyles', 'customDances']) {
     const value = req.body[key];
     if (value !== undefined && (!Array.isArray(value) || value.length > 50 || value.some(item => typeof item !== 'string' || item.length > 100))) return sendError(res, 400, 'Invalid profile list', 'VALIDATION_ERROR');
   }
@@ -1253,6 +1259,8 @@ app.put('/api/profile', requireAuth, asyncRoute(async (req: Request, res: Respon
     danceLevels: req.body.danceLevels,
     zipCode: req.body.zipCode,
     bio: req.body.bio,
+    hobbies: req.body.hobbies,
+    datingGoals: req.body.datingGoals,
     interests: req.body.interests,
     danceStyles: req.body.danceStyles,
     location: req.body.location,
@@ -1345,8 +1353,8 @@ app.get('/api/profiles', requireAuth, asyncRoute(async (req: Request, res: Respo
 
   // Convert to PreviewProfile-like responses with distance and compatibility
   const items = availableProfiles.map((profile: PersistedUser) => {
-    const danceStyleMatches = profile.danceStyles.filter((d) => currentUser.danceStyles.includes(d)).length;
-    const totalDances = Math.max(profile.danceStyles.length, currentUser.danceStyles.length, 1);
+    const danceStyleMatches = (profile.hobbies ?? []).filter((hobby) => (currentUser.hobbies ?? []).includes(hobby)).length;
+    const totalDances = Math.max(profile.hobbies?.length ?? 0, currentUser.hobbies?.length ?? 0, 1);
     const compatibility = Math.round((danceStyleMatches / totalDances) * 100);
 
     const distance = distanceBetweenUsersInKm(currentUser, profile);
@@ -1365,7 +1373,9 @@ app.get('/api/profiles', requireAuth, asyncRoute(async (req: Request, res: Respo
       bio: profile.bio,
       dances: profile.danceStyles.map(danceId => ({ danceId, level: 1 })),
       customDances: profile.customDances ?? [],
-      searchPurposes: ['hobby'] as const,
+      hobbies: profile.hobbies ?? [],
+      datingGoals: profile.datingGoals ?? [],
+      searchPurposes: [],
       photos,
       videos: [],
       calendar: profile.calendar ?? [],

@@ -16,7 +16,7 @@ interface UserProfile {
   city: string;
   distance: number;
   bio: string;
-  dances: string[];
+  hobbies: string[];
   photos: string[];
   compatibility: number;
   verified: boolean;
@@ -71,7 +71,7 @@ export const Profile: React.FC = () => {
             city: data.location?.city || 'Unbekannt',
             distance: data.location?.distance ?? 0,
             bio: data.bio || 'Noch keine Beschreibung',
-            dances: data.danceStyles || [],
+            hobbies: data.hobbies || [],
             photos,
             compatibility: 0,
             verified: false,
@@ -246,9 +246,9 @@ export const Profile: React.FC = () => {
 
           {/* Dances */}
           <div className="profile-view-section">
-            <h3>{t("Liebliche Tänze")}</h3>
+            <h3>{t("Interessen und Hobbys")}</h3>
             <div className="dance-tags">
-              {profile.dances.map((dance, idx) => (
+              {profile.hobbies.map((dance, idx) => (
                 <span key={idx} className="tag">
                   {dance}
                 </span>

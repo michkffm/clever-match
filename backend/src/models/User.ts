@@ -37,6 +37,8 @@ const userSchema = new Schema(
     zipCode: { type: String },
     role: { type: String, enum: ['user', 'moderator', 'admin'], default: 'user' },
     bio: { type: String, default: '' },
+    hobbies: { type: [String], default: [] },
+    datingGoals: { type: [String], default: [] },
     interests: { type: [String], default: [] },
     danceStyles: { type: [String], default: [] },
     profilePhotos: { type: [String], default: [] },

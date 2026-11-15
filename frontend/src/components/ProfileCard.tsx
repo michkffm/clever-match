@@ -20,21 +20,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
   const primaryPhoto = profile.photos?.find(
     (photo) => typeof photo === 'string' && photo.trim().length > 0
   );
-  const selectedDances = profile.dances
-    .filter((d) => d)
-    .slice(0, 3)
-    .map((d) => {
-      // Just show dance IDs as shorthand
-      const danceMap: Record<string, string> = {
-        'waltz': 'Walzer',
-        'salsa': 'Salsa',
-        'tango': 'Tango',
-        'bachata': 'Bachata',
-        'cha-cha-cha': 'Cha-Cha',
-        'quickstep': 'Quickstep',
-      };
-      return danceMap[d.danceId] || d.danceId.split('-')[0];
-    });
+  const selectedDances = (profile.hobbies ?? []).slice(0, 3);
 
   return (
     <div className="profile-card">
@@ -88,8 +74,8 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
                 {dance}
               </span>
             ))}
-            {profile.dances.length > 3 && (
-              <span className="dance-tag more">+{profile.dances.length - 3}</span>
+            {(profile.hobbies ?? []).length > 3 && (
+              <span className="dance-tag more">+{(profile.hobbies ?? []).length - 3}</span>
             )}
           </div>
         )}

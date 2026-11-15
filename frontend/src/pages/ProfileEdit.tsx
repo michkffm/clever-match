@@ -2,7 +2,6 @@ import type { Profile } from '../types/api';
 import { useTranslation } from "../utils/translations";
 import React, { useEffect, useState } from 'react';
 import { Save, Upload, Trash2 } from 'lucide-react';
-import { TanzCheckboxGrid } from '../components/TanzCheckboxGrid';
 import { useNotification } from '../hooks/useNotification';
 import { apiClient } from '../services/api';
 import { storageService } from '../services/storage';
@@ -20,6 +19,8 @@ interface ProfileEditState {
   athleticism: 'very-sporty' | 'sporty' | 'normal' | 'not-sporty';
   figure: 'slim' | 'normal' | 'curvy' | 'muscular';
   bio: string;
+  hobbies: string[];
+  datingGoals: string[];
   selectedDances: string[];
   danceLevels: { danceId: string; level: 1 | 2 | 3 | 4 | 5 }[];
   customDances: string[];
@@ -37,12 +38,10 @@ const initialState: ProfileEditState = {
   athleticism: 'sporty',
   figure: 'normal',
   bio: '',
+  hobbies: [],
+  datingGoals: [],
   selectedDances: [],
-  danceLevels: [
-    { danceId: 'salsa', level: 3 },
-    { danceId: 'bachata', level: 2 },
-    { danceId: 'tango', level: 2 },
-  ],
+  danceLevels: [],
   customDances: [],
   searchPurposes: [],
   photos: [],
@@ -65,17 +64,6 @@ export const ProfileEdit: React.FC = () => {
     setHasChanges(true);
   };
 
-  const handleDancesChange = (selectedDances: string[]) => {
-    handleChange('selectedDances', selectedDances);
-  };
-
-  const handleDanceLevelChange = (danceId: string, level: 1 | 2 | 3 | 4 | 5) => {
-    const updated = profile.danceLevels.filter((d) => d.danceId !== danceId);
-    updated.push({ danceId, level });
-    handleChange('danceLevels', updated);
-  };
-
-
   useEffect(() => {
     let isActive = true;
 
@@ -97,6 +85,8 @@ export const ProfileEdit: React.FC = () => {
           height: data.height ?? prev.height,
           athleticism: data.athleticism ?? prev.athleticism,
           figure: data.figure ?? prev.figure,
+          hobbies: data.hobbies ?? [],
+          datingGoals: data.datingGoals ?? [],
           calendar: data.calendar ?? prev.calendar,
           customDances: data.customDances ?? prev.customDances,
           danceLevels: data.danceLevels ?? prev.danceLevels,
@@ -141,13 +131,11 @@ export const ProfileEdit: React.FC = () => {
         height: profile.height,
         athleticism: profile.athleticism,
         figure: profile.figure,
+        hobbies: profile.hobbies.map(value => value.trim()).filter(Boolean),
+        datingGoals: profile.datingGoals,
         calendar: profile.calendar,
-        customDances: profile.customDances,
-        danceLevels: profile.danceLevels,
 
         bio: profile.bio,
-        danceStyles: profile.selectedDances,
-        interests: profile.searchPurposes,
         profilePhotos: sanitizedPhotos,
       };
 
@@ -168,6 +156,8 @@ export const ProfileEdit: React.FC = () => {
           height: updatedProfile.height ?? prev.height,
           athleticism: updatedProfile.athleticism ?? prev.athleticism,
           figure: updatedProfile.figure ?? prev.figure,
+          hobbies: updatedProfile.hobbies ?? [],
+          datingGoals: updatedProfile.datingGoals ?? [],
           calendar: updatedProfile.calendar ?? prev.calendar,
           customDances: updatedProfile.customDances ?? prev.customDances,
           danceLevels: updatedProfile.danceLevels ?? prev.danceLevels,
@@ -243,10 +233,10 @@ export const ProfileEdit: React.FC = () => {
   };
 
   const togglePurpose = (purpose: typeof profile.searchPurposes[0]) => {
-    const updated = profile.searchPurposes.includes(purpose)
-      ? profile.searchPurposes.filter((p) => p !== purpose)
-      : [...profile.searchPurposes, purpose];
-    handleChange('searchPurposes', updated);
+    const updated = profile.datingGoals.includes(purpose)
+      ? profile.datingGoals.filter((p) => p !== purpose)
+      : [...profile.datingGoals, purpose];
+    handleChange('datingGoals', updated);
   };
 
   const toggleCalendarDay = (dayIndex: number) => {
@@ -286,7 +276,7 @@ export const ProfileEdit: React.FC = () => {
             className={`tab-btn ${currentTab === 'dances' ? 'active' : ''}`}
             onClick={() => setCurrentTab('dances')}
           >
-            {t("Tänze")}
+            {t("Interessen und Hobbys")}
           </button>
           <button
             className={`tab-btn ${currentTab === 'calendar' ? 'active' : ''}`}
@@ -423,21 +413,18 @@ export const ProfileEdit: React.FC = () => {
 
               {/* Search Purposes */}
               <div className="form-section">
-                <h2>{t("Suchzweck")}</h2>
+                <h2>{t("Ich suche")}</h2>
                 <div className="checkbox-group">
                   {[
-                    { id: 'hobby', label: 'Hobby' },
-                    { id: 'dance-circle', label: t("Tanzkreis") },
-                    { id: 'free-time', label: t("Freizeit") },
-                    { id: 'professional', label: t("Beruflich") },
-                    { id: 'balls', label: t("Bälle/Turniere") },
-                    { id: 'events', label: 'Events' },
-                    { id: 'relocation', label: t("Umzug") },
+                    { id: 'relationship', label: t("Feste Beziehung") },
+                    { id: 'dating', label: t("Dates und Kennenlernen") },
+                    { id: 'friendship', label: t("Freundschaft") },
+                    { id: 'open', label: t("Noch offen") },
                   ].map((purpose) => (
                     <label key={purpose.id} className="checkbox-label">
                       <input
                         type="checkbox"
-                        checked={profile.searchPurposes.includes(purpose.id)}
+                        checked={profile.datingGoals.includes(purpose.id)}
                         onChange={() => togglePurpose(purpose.id)}
                         className="checkbox-input"
                       />
@@ -453,16 +440,9 @@ export const ProfileEdit: React.FC = () => {
           {/* Dances Tab */}
           {currentTab === 'dances' && (
             <div className="dances-tab">
-              <h2>{t("Meine Tänze")}</h2>
-              <TanzCheckboxGrid
-                selectedDances={profile.selectedDances}
-                onChange={handleDancesChange}
-                showLevels={true}
-                levels={profile.danceLevels}
-                onLevelChange={handleDanceLevelChange}
-                customDances={profile.customDances}
-                onCustomDancesChange={(customs) => handleChange('customDances', customs)}
-              />
+              <h2>{t("Interessen und Hobbys")}</h2>
+              <label htmlFor="hobbies">{t("Deine Interessen, durch Kommas getrennt")}</label>
+              <textarea id="hobbies" maxLength={2000} value={profile.hobbies.join(',')} onChange={(event) => handleChange('hobbies', event.target.value.split(','))} />
             </div>
           )}
 

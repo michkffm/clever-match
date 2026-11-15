@@ -91,7 +91,7 @@ export const Matches: React.FC = () => {
           <div className="matches-empty">
             <div className="matches-empty-icon">💔</div>
             <h2>{t("Noch keine Matches")}</h2>
-            <p>{t("Swipe und finde deinen perfekten Tanzpartner!")}</p>
+            <p>{t("Entdecke neue Menschen und finde dein Match!")}</p>
           </div>
         )}
       </div>

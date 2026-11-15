@@ -1,7 +1,7 @@
 {
   "name": "Clever Match",
   "short_name": "Clever Match",
-  "description": "Tanzpartner-Boerse als Progressive Web App",
+  "description": "Dating-App zum Kennenlernen, Matchen und Chatten",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#f5f5f5",

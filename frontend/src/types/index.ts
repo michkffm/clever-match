@@ -59,6 +59,8 @@ export interface UserProfile {
   athleticism: Athleticism;
   figure: Figure;
   bio: string;
+  hobbies?: string[];
+  datingGoals?: string[];
   dances: { danceId: string; level: 1 | 2 | 3 | 4 | 5 }[]; // 1-5 Anfänger-Profi
   customDances: string[];
   searchPurposes: SearchPurpose[];

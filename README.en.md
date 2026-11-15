@@ -4,14 +4,15 @@
 
 [Live app](https://clevermatch.onrender.com/)
 
-Clever Match is a full-stack app for finding dance partners through profiles, matching, and chat. The frontend and backend run on Render, with data stored in MongoDB Atlas.
+Clever Match is a dating app for meeting new people, finding compatible matches, and chatting. The frontend and backend run on Render, with data stored in MongoDB Atlas.
 
 ![Clever Match – desktop sign-in page](docs/clever-match-desktop.png)
 
 ## Features
 
 - Registration, sign-in, and individual guest access
-- Profile editing and dance partner discovery
+- Profile editing and discovering new people
+- Save interests, hobbies, and dating intentions in your profile
 - Likes, mutual matches, and chat
 - Events and event registration
 - Private profiles and user blocking

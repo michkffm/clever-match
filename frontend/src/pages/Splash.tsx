@@ -16,7 +16,7 @@ export const Splash: React.FC<SplashProps> = ({ onComplete }) => {
       id: 0,
       backgroundColor: 'linear-gradient(135deg, #4CAF50 0%, #2196F3 100%)',
       title: 'Willkommen bei Clever Match!',
-      subtitle: 'Finde deinen perfekten Tanzpartner',
+      subtitle: 'Lerne neue Menschen kennen und finde dein Match',
       showLogo: true,
     },
     {
@@ -24,7 +24,7 @@ export const Splash: React.FC<SplashProps> = ({ onComplete }) => {
       backgroundColor: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
       icon: '✨',
       title: 'Modern & sicher',
-      subtitle: 'Swipe, chatten, tanzen – alles an einem Ort',
+      subtitle: 'Entdecken, matchen, chatten – alles an einem Ort',
       points: [
         'Einfaches Matching',
         'Sichere Kommunikation',

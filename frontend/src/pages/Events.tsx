@@ -38,7 +38,7 @@ export default function Events() {
   setError('');
  };
  return <MainLayout><section className="events-container">
-  <h1>{en ? 'Dance events' : 'Tanzevents'}</h1>
+  <h1>{en ? 'Dance events' : 'Events'}</h1>
   <label htmlFor="event-search">{en ? 'Search events' : 'Events suchen'}</label>
   <input id="event-search" type="search" value={query} onChange={e=>setQuery(e.target.value)} />
   {loading && <p role="status">{en ? 'Loading…' : 'Wird geladen…'}</p>}

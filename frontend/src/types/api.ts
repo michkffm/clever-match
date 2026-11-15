@@ -27,6 +27,8 @@ export interface Profile extends User {
   danceLevels?: { danceId: string; level: 1 | 2 | 3 | 4 | 5 }[];
 
   bio?: string;
+  hobbies?: string[];
+  datingGoals?: string[];
   interests?: string[];
   danceStyles?: string[];
   profilePhotos?: string[];
@@ -57,6 +59,8 @@ export interface PublicProfile {
   profilePhotos?: string[];
   danceStyles?: string[];
   bio?: string;
+  hobbies?: string[];
+  datingGoals?: string[];
   interests?: string[];
 }
 
@@ -125,6 +129,8 @@ export interface UpdateProfileRequest {
   danceLevels?: { danceId: string; level: 1 | 2 | 3 | 4 | 5 }[];
 
   bio?: string;
+  hobbies?: string[];
+  datingGoals?: string[];
   interests?: string[];
   danceStyles?: string[];
   preferences?: {
