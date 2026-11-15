@@ -1,5 +1,7 @@
 import { useLanguage } from "./i18n";
 const english: Record<string, string> = {
+  "Deine Nachricht": "Your message",
+  "Nachricht konnte nicht gesendet werden. Der Chat ist möglicherweise blockiert oder nicht erreichbar.": "Message could not be sent. The chat may be blocked or unavailable.",
   "Bitte bestätige zuerst deine E-Mail-Adresse.": "Please confirm your email address first.",
   "Bitte bestätige deine E-Mail-Adresse über den Link in deinem Postfach. Erst danach kannst du dich anmelden.": "Confirm your email using the link in your inbox before signing in.",
   "Dein Konto wartet auf Bestätigung. Der Versand ist fehlgeschlagen. Fordere den Link bitte erneut an.": "Your account is awaiting confirmation. Delivery failed. Please request another link.",

@@ -2,6 +2,7 @@ import { useTranslation } from "../utils/translations";
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Heart, Share2, Flag, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useAuth } from '../hooks/useAuth';
 import MainLayout from '../layouts/MainLayout';
 import { apiClient } from '../services/api';
 import { handleImageError, normalizeImageUrl } from '../utils/imageFallback';
@@ -27,6 +28,7 @@ export const Profile: React.FC = () => {
   const t = useTranslation();
   const navigate = useNavigate();
   const { id } = useParams();
+  const { user } = useAuth();
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
   const [liked, setLiked] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
@@ -229,13 +231,13 @@ export const Profile: React.FC = () => {
                 {profile.height ? `${profile.height}cm • ` : ''}{profile.distance ? `${profile.distance} km entfernt` : 'Entfernung n/a'}
               </p>
             </div>
-            <button
+            {user?.id === profile.id && <button
               type="button"
               className="btn-edit-profile"
               onClick={() => navigate('/profile/edit')}
             >
-              {t("Profil erstellen")}
-            </button>
+              {t("Mein Profil bearbeiten")}
+            </button>}
           </div>
 
           {/* Bio */}

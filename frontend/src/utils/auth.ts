@@ -7,6 +7,7 @@ import type { User, AuthResponse } from '../types/api';
 
 class AuthService {
   private isInitialized = false;
+  private initialization: Promise<User | null> | null = null;
   private accessToken: string | null = null;
   private refreshTimeoutId: number | null = null;
   private refreshFailureCount = 0;
@@ -70,6 +71,12 @@ class AuthService {
    * Check if user is already logged in from localStorage
    */
   async initialize(): Promise<User | null> {
+    if (this.isInitialized) return this.accessToken ? this.getCurrentUser() : null;
+    if (!this.initialization) this.initialization = this.restoreSession();
+    return this.initialization;
+  }
+
+  private async restoreSession(): Promise<User | null> {
     if (this.isInitialized) return this.accessToken ? this.getCurrentUser() : null;
 
     apiClient.setOnTokenRefreshed((token) => {

@@ -94,17 +94,27 @@
   min-height: 32px;
 }
 
-.toggle-label {
+.settings-container .toggle-label {
+  position: relative;
   display: flex;
   align-items: center;
   cursor: pointer;
 }
 
-.toggle-input {
-  display: none;
+.settings-container .toggle-input {
+  display: block;
+  position: absolute;
+  opacity: 0;
+  width: 48px;
+  height: 28px;
+  margin: 0;
+}
+.settings-container .toggle-input:focus-visible + .toggle-slider {
+  outline: 3px solid var(--color-text);
+  outline-offset: 4px;
 }
 
-.toggle-slider {
+.settings-container .toggle-slider {
   flex-shrink: 0;
   width: 48px;
   height: 28px;
@@ -114,7 +124,7 @@
   transition: background 0.3s;
 }
 
-.toggle-slider::after {
+.settings-container .toggle-slider::after {
   content: '';
   position: absolute;
   width: 24px;
@@ -127,11 +137,11 @@
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.24);
 }
 
-.toggle-input:checked + .toggle-slider {
+.settings-container .toggle-input:checked + .toggle-slider {
   background: var(--settings-accent-gradient);
 }
 
-.toggle-input:checked + .toggle-slider::after {
+.settings-container .toggle-input:checked + .toggle-slider::after {
   left: 22px;
 }
 

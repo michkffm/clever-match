@@ -13,9 +13,9 @@ import './ProfileEdit.css';
 interface ProfileEditState {
   firstName: string;
   lastName: string;
-  age: number;
+  age: number | '';
   gender: 'M' | 'W' | 'D' | 'other';
-  height: number;
+  height: number | '';
   athleticism: 'very-sporty' | 'sporty' | 'normal' | 'not-sporty';
   figure: 'slim' | 'normal' | 'curvy' | 'muscular';
   bio: string;
@@ -32,10 +32,10 @@ interface ProfileEditState {
 const initialState: ProfileEditState = {
   firstName: '',
   lastName: '',
-  age: 28,
-  gender: 'M',
-  height: 180,
-  athleticism: 'sporty',
+  age: '',
+  gender: 'other',
+  height: '',
+  athleticism: 'normal',
   figure: 'normal',
   bio: '',
   hobbies: [],
@@ -126,9 +126,9 @@ export const ProfileEdit: React.FC = () => {
       const updateData = {
         firstName: profile.firstName,
         lastName: profile.lastName,
-        age: profile.age,
+        age: profile.age === '' ? undefined : profile.age,
         gender: profile.gender,
-        height: profile.height,
+        height: profile.height === '' ? undefined : profile.height,
         athleticism: profile.athleticism,
         figure: profile.figure,
         hobbies: profile.hobbies.map(value => value.trim()).filter(Boolean),
@@ -327,9 +327,9 @@ export const ProfileEdit: React.FC = () => {
                     <input id="profile-age"
                       type="number"
                       min="18"
-                      max="70"
+                      max="99"
                       value={profile.age}
-                      onChange={(e) => handleChange('age', parseInt(e.target.value))}
+                      onChange={(e) => handleChange('age', e.target.value === '' ? '' : Number(e.target.value))}
                       className="form-input-field"
                     />
                   </div>
@@ -337,10 +337,10 @@ export const ProfileEdit: React.FC = () => {
                     <label htmlFor="profile-height">{t("Größe (cm)")}</label>
                     <input id="profile-height"
                       type="number"
-                      min="150"
-                      max="210"
+                      min="100"
+                      max="250"
                       value={profile.height}
-                      onChange={(e) => handleChange('height', parseInt(e.target.value))}
+                      onChange={(e) => handleChange('height', e.target.value === '' ? '' : Number(e.target.value))}
                       className="form-input-field"
                     />
                   </div>

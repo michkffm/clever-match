@@ -13,7 +13,7 @@ Clever Match is a dating app for meeting new people, finding compatible matches,
 - Registration with mandatory email confirmation, sign-in, and individual guest access
 - Profile editing and discovering new people
 - Save interests, hobbies, and dating intentions in your profile
-- Likes, mutual matches, and chat
+- Likes, one shared conversation per mutual match, and live chat
 - Events and event registration
 - Private profiles and user blocking
 - German and English interface, light and dark themes

@@ -135,7 +135,7 @@ export const SearchOverlay: React.FC<SearchOverlayProps> = ({ open, onClose }) =
             <Search size={18} />
             <input
               type="text"
-              placeholder={t("Suche nach Personen und Events...")}
+              placeholder={t("Suche nach Personen und Events...")} aria-label={t("Suche nach Personen und Events...")}
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               autoFocus
@@ -165,6 +165,9 @@ export const SearchOverlay: React.FC<SearchOverlayProps> = ({ open, onClose }) =
                       <li
                         key={profile.id}
                         className="search-item"
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); event.currentTarget.click(); } }}
                         onClick={() => {
                           onClose();
                           navigate(`/profile/${profile.id}`);
@@ -197,6 +200,9 @@ export const SearchOverlay: React.FC<SearchOverlayProps> = ({ open, onClose }) =
                       <li
                         key={event.id}
                         className="search-item"
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); event.currentTarget.click(); } }}
                         onClick={() => {
                           onClose();
                           navigate('/events', { state: { highlightEventId: event.id } });

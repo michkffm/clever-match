@@ -90,6 +90,7 @@ if (REFRESH_COOKIE_SAMESITE === 'none' && !REFRESH_COOKIE_SECURE) {
 
 const refreshCookieOptions = {
   httpOnly: true,
+  partitioned: REFRESH_COOKIE_SECURE && REFRESH_COOKIE_SAMESITE === 'none',
   secure: REFRESH_COOKIE_SECURE,
   sameSite: REFRESH_COOKIE_SAMESITE,
   path: REFRESH_COOKIE_PATH,
@@ -1455,15 +1456,18 @@ app.get('/api/notifications', requireAuth, asyncRoute(async (req: Request, res: 
   const matches = await MatchModel.find({ mutualMatch: true, unmatchedAt: null,
     $or: [{ actorUserId: id }, { targetUserId: id }],
     actorUserId: { $nin: excluded }, targetUserId: { $nin: excluded },
-  }).sort({ updatedAt: -1 }).limit(100).lean();
+  }).sort({ _id: -1 }).limit(200).lean();
+  const uniqueMatches = oneMatchPerPartner(matches, id);
+  const canonicalByPartner = new Map(uniqueMatches.map(match => [match.actorUserId === id ? match.targetUserId : match.actorUserId, match._id.toString()]));
+  const canonicalById = new Map(matches.map(match => [match._id.toString(), canonicalByPartner.get(match.actorUserId === id ? match.targetUserId : match.actorUserId)!]));
   const messages = preferences.messages ? await MessageModel.find({
     matchId: { $in: matches.map(item => item._id.toString()) },
     senderId: { $ne: id }, read: false,
   }).sort({ createdAt: -1 }).limit(100).lean() : [];
   const items: { id: string; type: string; createdAt: string; path: string }[] = messages.map(item => ({
-    id: `message-${item._id}`, type: 'message', createdAt: item.createdAt.toISOString(), path: `/chat/${item.matchId}`,
+    id: `message-${item._id}`, type: 'message', createdAt: item.createdAt.toISOString(), path: `/chat/${canonicalById.get(item.matchId) ?? item.matchId}`,
   }));
-  if (preferences.matches) for (const match of matches) items.push({
+  if (preferences.matches) for (const match of uniqueMatches) items.push({
     id: `match-${match._id}`, type: 'match', createdAt: match.updatedAt.toISOString(), path: `/chat/${match._id}`,
   });
   if (preferences.likes) {
@@ -1494,10 +1498,10 @@ app.get('/api/matches', requireAuth, asyncRoute(async (req: Request, res: Respon
     type: { $in: ['like', 'superlike'] },
     mutualMatch: true,
     unmatchedAt: null,
-  }).sort({ createdAt: -1 });
+  }).sort({ _id: -1 });
 
   res.json({
-    data: matches.map((match) => toMatchResponse(match, currentUserId)),
+    data: oneMatchPerPartner(matches, currentUserId).map((match) => toMatchResponse(match, currentUserId)),
     message: matches.length === 0 ? 'No matches yet' : undefined,
   });
 }));
@@ -1568,6 +1572,26 @@ app.post('/api/matches', requireAuth, asyncRoute(async (req: Request, res: Respo
   res.status(201).json(toMatchResponse(match, currentUser._id.toString()));
 }));
 
+function oneMatchPerPartner<T extends { actorUserId: string; targetUserId: string }>(matches: T[], userId: string): T[] {
+  const seen = new Set<string>();
+  return matches.filter(match => {
+    const partnerId = match.actorUserId === userId ? match.targetUserId : match.actorUserId;
+    if (seen.has(partnerId)) return false;
+    seen.add(partnerId);
+    return true;
+  });
+}
+
+async function conversationIds(matchId: string): Promise<string[]> {
+  const match = await getMatchParticipants(matchId);
+  if (!match) return [];
+  const rows = await MatchModel.find({ mutualMatch: true, unmatchedAt: null, $or: [
+    { actorUserId: match.actorUserId, targetUserId: match.targetUserId },
+    { actorUserId: match.targetUserId, targetUserId: match.actorUserId },
+  ] }).sort({ _id: -1 }).select('_id').lean();
+  return rows.map(row => row._id.toString());
+}
+
 // === Messages Routes ===
 app.get('/api/messages/:matchId', requireAuth, asyncRoute(async (req: Request, res: Response) => {
   const authReq = req as AuthenticatedRequest;
@@ -1591,7 +1615,7 @@ app.get('/api/messages/:matchId', requireAuth, asyncRoute(async (req: Request, r
   }
 
   const messages = await MessageModel.find({
-    matchId: req.params.matchId,
+    matchId: { $in: await conversationIds(req.params.matchId) },
     deletedFor: { $ne: authReq.authUserId },
   }).sort({ createdAt: 1 });
 
@@ -1624,7 +1648,7 @@ app.post('/api/messages/:matchId/read', requireAuth, asyncRoute(async (req: Requ
 
   const result = await MessageModel.updateMany(
     {
-      matchId: req.params.matchId,
+      matchId: { $in: await conversationIds(req.params.matchId) },
       senderId: { $ne: authReq.authUserId },
       read: false,
     },
@@ -1639,7 +1663,8 @@ app.post('/api/messages/:matchId/read', requireAuth, asyncRoute(async (req: Requ
     readAt: new Date().toISOString(),
   });
 
-  broadcastChat(req.params.matchId, {
+  const ids = await conversationIds(req.params.matchId);
+  broadcastChat(ids[0] ?? req.params.matchId, {
     type: 'messages:read',
     data: { readerId: authReq.authUserId },
   });
@@ -1678,14 +1703,16 @@ app.post('/api/messages', requireAuth, messageLimiter, asyncRoute(async (req: Re
     return sendError(res, 403, 'Conversation blocked', 'USER_BLOCKED');
   }
 
+  const ids = await conversationIds(String(matchId));
+  const canonicalId = ids[0] ?? String(matchId);
   const message = await MessageModel.create({
-    matchId: String(matchId),
+    matchId: canonicalId,
     text: text.trim(),
     senderId: authReq.authUserId,
   });
 
   const payload = toMessageResponse(message);
-  broadcastChat(String(matchId), { type: 'messages:new', data: payload });
+  broadcastChat(canonicalId, { type: 'messages:new', data: payload });
   res.status(201).json(payload);
 }));
 
@@ -1972,7 +1999,7 @@ async function startServer(): Promise<void> {
         const message = JSON.parse(data.toString());
 
         if (message.type === 'join') {
-          const matchId = String(message.matchId || '');
+          let matchId = String(message.matchId || '');
           if (!matchId) {
             ws.send(JSON.stringify({ type: 'error', message: 'Invalid matchId' }));
             return;
@@ -2002,6 +2029,8 @@ async function startServer(): Promise<void> {
             return;
           }
 
+          const ids = await conversationIds(matchId);
+          matchId = ids[0] ?? matchId;
           const joinedMatchId = chatClientMeta.get(ws)?.matchId;
           if (joinedMatchId && joinedMatchId !== matchId) {
             ws.send(JSON.stringify({ type: 'error', message: 'Socket is already in another room' }));

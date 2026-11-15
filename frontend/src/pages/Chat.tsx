@@ -31,6 +31,8 @@ export const Chat: React.FC = () => {
   const currentUserId = storageService.getUser()?.id;
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState('');
+  const [sendError, setSendError] = useState('');
+  const [sending, setSending] = useState(false);
   const [partnerName, setPartnerName] = useState('Chat');
   const [partnerId, setPartnerId] = useState<string | null>(null);
   const [isBlocked, setIsBlocked] = useState(false);
@@ -142,6 +144,37 @@ export const Chat: React.FC = () => {
 
     void loadChat();
   }, [currentUserId, matchId, loadCachedMessages, saveCachedMessages]);
+
+  useEffect(() => {
+    const token = authService.getToken();
+    if (!matchId || !token) return;
+    let active = true;
+    const socket = new WebSocket(createWebSocketUrl('/ws/chat', token));
+    const refresh = async () => {
+      if (!active || document.visibilityState !== 'visible') return;
+      const response = await apiClient.getMessages(matchId);
+      const payload = response.data as { data?: Message[] } | undefined;
+      if (!active || !Array.isArray(payload?.data)) return;
+      setMessages(payload.data.map(message => ({ id: message.id, sender: message.senderId === currentUserId ? 'me' : 'partner', text: message.text, timestamp: new Date(message.createdAt), read: message.read })));
+      await apiClient.markMessagesRead(matchId);
+    };
+    socket.onopen = () => socket.send(JSON.stringify({ type: 'join', matchId }));
+    socket.onmessage = event => {
+      try {
+        const message: unknown = JSON.parse(String(event.data));
+        if (!message || typeof message !== 'object' || !('type' in message)) return;
+        if (message.type === 'joined' || message.type === 'messages:new') void refresh();
+        if (message.type === 'messages:read' && 'data' in message && message.data && typeof message.data === 'object' && 'readerId' in message.data && message.data.readerId !== currentUserId) {
+          setMessages(current => current.map(item => item.sender === 'me' ? { ...item, read: true } : item));
+        }
+      } catch { /* Ignore malformed transport messages; HTTP remains authoritative. */ }
+    };
+    // Recover missed updates after transport loss or a sleeping browser tab.
+    const timer = window.setInterval(() => { void refresh(); }, 5000);
+    const visible = () => { void refresh(); };
+    document.addEventListener('visibilitychange', visible);
+    return () => { active = false; window.clearInterval(timer); document.removeEventListener('visibilitychange', visible); socket.close(); };
+  }, [matchId, currentUserId]);
 
   useEffect(() => {
     if (!matchId) return;
@@ -327,18 +360,22 @@ export const Chat: React.FC = () => {
   };
 
   const handleSendMessage = async () => {
-    if (!matchId || inputValue.trim() === '') {
+    if (!matchId || sending || isBlocked || inputValue.trim() === '') {
       return;
     }
 
+    setSending(true);
+    setSendError('');
     const response = await apiClient.sendMessage(matchId, inputValue.trim());
+    setSending(false);
     const newMessage = response.data as Message | undefined;
 
     if (!newMessage) {
+      setSendError(t("Nachricht konnte nicht gesendet werden. Der Chat ist möglicherweise blockiert oder nicht erreichbar."));
       return;
     }
 
-    setMessages((currentMessages) => [
+    setMessages((currentMessages) => currentMessages.some(item => item.id === newMessage.id) ? currentMessages : [
       ...currentMessages,
       {
         id: newMessage.id,
@@ -468,7 +505,7 @@ export const Chat: React.FC = () => {
           </div>
         </div>
 
-        <div className="chat-messages">
+        <div className="chat-messages" role="log" aria-label={t("Nachrichten")}>
           {messages.map((message) => (
             <div
               key={message.id}
@@ -504,6 +541,7 @@ export const Chat: React.FC = () => {
           <div ref={messagesEndRef} />
         </div>
 
+        {sendError && <p role="alert">{sendError}</p>}
         <div className="chat-input-area">
           <div className="chat-input-actions">
             <button
@@ -523,7 +561,7 @@ export const Chat: React.FC = () => {
           </div>
 
           <div className="chat-input-wrapper">
-            <textarea
+            <textarea aria-label={t("Deine Nachricht")}
               className="chat-input"
               placeholder={t("Schreib eine Nachricht...")}
               value={inputValue}
@@ -537,7 +575,7 @@ export const Chat: React.FC = () => {
           <button
             className="chat-send-btn"
             onClick={() => void handleSendMessage()}
-            disabled={inputValue.trim() === '' || isBlocked}
+            disabled={inputValue.trim() === '' || isBlocked || sending}
             title="Send"
             aria-label="Send Message"
           >

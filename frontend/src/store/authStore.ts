@@ -32,7 +32,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
   // Initial state
   user: null,
   isAuthenticated: false,
-  isLoading: false,
+  isLoading: true,
   error: null,
 
   // Initialize from storage
