@@ -61,6 +61,25 @@ const WebSocket = require('ws');
   ok(movedNetwork.status===200,'legitimate network address change preserves session');
 
   const ta=loginA.data.token,tb=loginB.data.token;
+  const eventCollection=mongoose.connection.collection('events');
+  const eventBase={description:'Isolated event fixture',location:'Test location',organizer:{id:aid,name:'Test organizer'},attendeeIds:[],createdAt:new Date(),updatedAt:new Date()};
+  const eventIds=(await eventCollection.insertMany([
+    {...eventBase,title:'Singles meetup',category:'singles',date:new Date(Date.now()+86400000)},
+    {...eventBase,title:'Legacy salsa',danceStyle:'salsa',date:new Date(Date.now()+86400000)},
+    {...eventBase,title:'Past singles event',category:'singles',date:new Date(Date.now()-86400000)},
+  ])).insertedIds;
+  const singlesId=eventIds[0].toString(),legacyId=eventIds[1].toString(),pastId=eventIds[2].toString();
+  const eventList=await request('/events',null,ta);
+  ok(eventList.data.data.length===1&&eventList.data.data[0].id===singlesId,'only upcoming singles events are listed');
+  ok(eventList.data.data[0].category==='singles'&&!('danceStyle' in eventList.data.data[0]),'event response uses singles category');
+  ok((await request('/events/'+legacyId,null,ta)).status===404,'legacy dance event detail is hidden');
+  ok((await request('/events/'+legacyId+'/register',{},ta)).status===404,'legacy dance event registration rejected');
+  ok((await request('/events/'+pastId+'/register',{},ta)).status===404,'past event registration rejected');
+  const eventRegistration=await request('/events/'+singlesId+'/register',{},ta);
+  ok(eventRegistration.status===200&&eventRegistration.data.registered,'singles event registration works');
+  ok((await request('/events/'+singlesId+'/register',{},ta)).data.attendees===1,'repeat event registration does not duplicate attendance');
+  ok(!(await request('/events/'+singlesId+'/register',null,ta,'DELETE')).data.registered,'singles event registration can be cancelled');
+
   ok((await request('/auth/login',{email:'a@example.invalid',password:'wrong'})).status===401,'incorrect password rejected');
   const profile=await request('/profiles/'+bid,null,ta);
   ok(!('email'in profile.data)&&!('lastName'in profile.data),'public profile excludes private fields');

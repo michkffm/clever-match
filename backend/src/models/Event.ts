@@ -15,6 +15,7 @@ const eventSchema = new Schema(
     date: { type: Date, required: true, index: true },
     time: { type: String },
     location: { type: String, required: true },
+    category: { type: String, enum: ['singles'], index: true },
     danceStyle: { type: String },
     organizer: { type: organizerSchema, required: true },
     attendeeIds: { type: [String], default: [] },

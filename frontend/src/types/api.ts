@@ -89,6 +89,7 @@ export interface Event {
   date: string;
   time?: string;
   location: string;
+  category?: 'singles';
   danceStyle?: string;
   organizer: {
     id: string;

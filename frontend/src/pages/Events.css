@@ -175,3 +175,17 @@
     height: 400px;
   }
 }
+
+.events-container { width: 100%; overflow-wrap: anywhere; }
+.events-intro { margin: .75rem 0 1.5rem; color: var(--color-text-secondary); }
+.events-container label { display: block; margin-bottom: .5rem; }
+.events-container input[type='search'] { width: 100%; min-height: 44px; margin-bottom: 1.5rem; }
+.events-empty { padding: 1.5rem; background: var(--color-bg-secondary); border: 1px solid var(--color-border); border-radius: 1rem; }
+.events-container .event-card { width: 100%; }
+.events-container .event-card-buttons { flex-wrap: wrap; }
+dialog.event-details { position: fixed; inset: 0; margin: auto; width: min(92vw, 35rem); max-height: calc(100dvh - 2rem); overflow-y: auto; padding: 1.5rem; border: 1px solid var(--color-border); border-radius: 1rem; color: var(--color-text); background: var(--color-bg-secondary); }
+dialog.event-details:not([open]) { display: none; }
+dialog.event-details[open] { display: block; }
+dialog.event-details::backdrop { background: rgba(0, 0, 0, .7); }
+.event-details p { margin: 1rem 0; }
+.events-container button { min-height: 44px; }

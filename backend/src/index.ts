@@ -321,6 +321,7 @@ type PersistedEvent = {
   date: Date;
   time?: string | null;
   location: string;
+  category?: 'singles' | null;
   danceStyle?: string | null;
   organizer: { id: string; name: string };
   attendeeIds: string[];
@@ -510,7 +511,7 @@ function toEventResponse(event: PersistedEvent, currentUserId?: string): Event {
     date: event.date.toISOString(),
     time: event.time ?? undefined,
     location: event.location,
-    danceStyle: event.danceStyle ?? undefined,
+    category: event.category ?? undefined,
     organizer: event.organizer,
     attendees: event.attendeeIds.length,
     registered: currentUserId ? event.attendeeIds.includes(currentUserId) : false,
@@ -552,37 +553,6 @@ async function ensureSeedData(): Promise<void> {
         distance: 25,
       },
     });
-  }
-
-  const eventCount = await EventModel.countDocuments();
-
-  if (eventCount === 0) {
-  const organizer = await UserModel.findOne({ email: 'test@example.com' });
-
-    if (organizer) {
-      await EventModel.create([
-        {
-          title: 'Salsa Night Berlin',
-          description: 'Live-DJ, offene Tanzflaeche und Workshop vor dem Social.',
-          date: new Date('2026-03-15T20:00:00.000Z'),
-          time: '21:00',
-          location: 'Luna Club, Berlin',
-          danceStyle: 'salsa',
-          organizer: { id: organizer._id.toString(), name: organizer.firstName },
-          attendeeIds: [organizer._id.toString()],
-        },
-        {
-          title: 'Bachata Meetup',
-          description: 'Entspannter Social-Abend fuer Bachata-Fans.',
-          date: new Date('2026-03-18T18:30:00.000Z'),
-          time: '19:30',
-          location: 'Studio Kreuzberg, Berlin',
-          danceStyle: 'bachata',
-          organizer: { id: organizer._id.toString(), name: organizer.firstName },
-          attendeeIds: [],
-        },
-      ]);
-    }
   }
 }
 
@@ -1470,7 +1440,7 @@ app.get('/api/notifications', requireAuth, asyncRoute(async (req: Request, res: 
     for (const like of likes) items.push({ id: `like-${like._id}`, type: 'like', createdAt: like.updatedAt.toISOString(), path: '/matches' });
   }
   if (preferences.events) {
-    const events = await EventModel.find({ attendeeIds: id, date: { $gte: new Date() } }).sort({ date: 1 }).limit(50).lean();
+    const events = await EventModel.find({ category: 'singles', attendeeIds: id, date: { $gte: new Date() } }).sort({ date: 1 }).limit(50).lean();
     for (const event of events) items.push({ id: `event-${event._id}`, type: 'event', createdAt: event.createdAt.toISOString(), path: '/events' });
   }
   items.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
@@ -1738,7 +1708,7 @@ app.get('/api/events', requireAuth, asyncRoute(async (req: Request, res: Respons
   if (!currentUser) {
     return sendError(res, 404, 'User not found', 'USER_NOT_FOUND');
   }
-  const events = await EventModel.find().sort({ date: 1 });
+  const events = await EventModel.find({ category: 'singles', date: { $gte: new Date() } }).sort({ date: 1 });
 
   res.json({
     data: events.map((event) => toEventResponse(event, currentUser?._id.toString())),
@@ -1750,7 +1720,7 @@ app.get('/api/events/:id', requireAuth, asyncRoute(async (req: Request, res: Res
   if (!currentUser) {
     return sendError(res, 404, 'User not found', 'USER_NOT_FOUND');
   }
-  const event = await EventModel.findById(req.params.id);
+  const event = await EventModel.findOne({ _id: req.params.id, category: 'singles' });
 
   if (!event) {
     return sendError(res, 404, 'Event not found', 'EVENT_NOT_FOUND');
@@ -1761,7 +1731,7 @@ app.get('/api/events/:id', requireAuth, asyncRoute(async (req: Request, res: Res
 
 app.post('/api/events/:id/register', requireAuth, asyncRoute(async (req: Request, res: Response) => {
   const authReq = req as AuthenticatedRequest;
-  const event = await EventModel.findById(req.params.id);
+  const event = await EventModel.findOne({ _id: req.params.id, category: 'singles', date: { $gte: new Date() } });
 
   if (!event || !authReq.authUserId) {
     return sendError(res, 404, 'Event not found', 'EVENT_NOT_FOUND');
