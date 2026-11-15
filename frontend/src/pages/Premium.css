@@ -36,13 +36,13 @@
 
 .premium-header h1 {
   margin: 0;
-  font-size: 32px;
+  font-size: 2rem;
   font-weight: 700;
 }
 
 .premium-header p {
   margin: 0;
-  font-size: 16px;
+  font-size: 1rem;
   opacity: 0.9;
 }
 
@@ -99,14 +99,14 @@
   color: white;
   padding: 6px 12px;
   border-radius: 20px;
-  font-size: 11px;
+  font-size: 0.6875rem;
   font-weight: 700;
   text-transform: uppercase;
 }
 
 .premium-plan-card h2 {
   margin: 0;
-  font-size: 20px;
+  font-size: 1.25rem;
   font-weight: 700;
   color: var(--color-text);
 }
@@ -118,19 +118,19 @@
 }
 
 .price {
-  font-size: 36px;
+  font-size: 2.25rem;
   font-weight: 700;
   color: var(--color-primary);
 }
 
 .period {
-  font-size: 14px;
+  font-size: 0.875rem;
   color: var(--color-text-secondary);
 }
 
 .premium-plan-description {
   margin: 0;
-  font-size: 13px;
+  font-size: 0.8125rem;
   color: var(--color-text-secondary);
 }
 
@@ -140,7 +140,7 @@
   background: transparent;
   color: var(--color-primary);
   border-radius: 8px;
-  font-size: 14px;
+  font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
@@ -168,7 +168,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 13px;
+  font-size: 0.8125rem;
   color: var(--color-text-secondary);
 }
 
@@ -184,7 +184,7 @@
 
 .premium-section h2 {
   margin: 0 0 24px 0;
-  font-size: 24px;
+  font-size: 1.5rem;
   font-weight: 700;
   color: var(--color-text);
 }
@@ -202,7 +202,7 @@
   border: none;
   padding: 8px 16px;
   border-radius: 6px;
-  font-size: 13px;
+  font-size: 0.8125rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
@@ -229,7 +229,7 @@
   background: var(--color-primary);
   color: white;
   font-weight: 600;
-  font-size: 13px;
+  font-size: 0.8125rem;
 }
 
 .comparison-row {
@@ -239,7 +239,7 @@
   padding: 16px;
   border-bottom: 1px solid var(--color-border);
   align-items: center;
-  font-size: 13px;
+  font-size: 0.8125rem;
 }
 
 .comparison-row:last-child {
@@ -297,7 +297,7 @@
 }
 
 .faq-item summary {
-  font-size: 14px;
+  font-size: 0.875rem;
   font-weight: 600;
   color: var(--color-text);
   list-style: none;
@@ -308,7 +308,7 @@
 
 .faq-item summary::after {
   content: '+';
-  font-size: 20px;
+  font-size: 1.25rem;
   color: var(--color-primary);
 }
 
@@ -318,7 +318,7 @@
 
 .faq-item p {
   margin: 12px 0 0 0;
-  font-size: 13px;
+  font-size: 0.8125rem;
   color: var(--color-text-secondary);
   line-height: 1.5;
 }
@@ -337,13 +337,13 @@
 
 .premium-cta h2 {
   margin: 0;
-  font-size: 28px;
+  font-size: 1.75rem;
   font-weight: 700;
 }
 
 .premium-cta p {
   margin: 0;
-  font-size: 15px;
+  font-size: 0.9375rem;
   opacity: 0.9;
 }
 
@@ -351,7 +351,7 @@
   max-width: 300px;
   margin: 0 auto;
   padding: 14px 32px;
-  font-size: 15px;
+  font-size: 0.9375rem;
   font-weight: 600;
 }
 
@@ -382,7 +382,7 @@
   }
 
   .premium-header h1 {
-    font-size: 24px;
+    font-size: 1.5rem;
   }
 
   .premium-plans {
@@ -395,7 +395,7 @@
   }
 
   .price {
-    font-size: 28px;
+    font-size: 1.75rem;
   }
 
   .premium-section {
@@ -403,7 +403,7 @@
   }
 
   .premium-section h2 {
-    font-size: 18px;
+    font-size: 1.125rem;
     margin-bottom: 16px;
   }
 
@@ -412,6 +412,6 @@
   }
 
   .premium-cta h2 {
-    font-size: 20px;
+    font-size: 1.25rem;
   }
 }

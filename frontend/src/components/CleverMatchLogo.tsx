@@ -28,7 +28,7 @@ export const CleverMatchLogo: React.FC<LogoProps> = ({ size = 'medium', showText
         objectFit: 'contain',
       }}
     />
-    {showText && <span style={{ fontSize: size === 'small' ? 18 : 24, fontWeight: 700, color: 'var(--color-text)' }}>Clever Match</span>}
+    {showText && <span style={{ fontSize: size === 'small' ? '1.125rem' : '1.5rem', fontWeight: 700, color: 'var(--color-text)' }}>Clever Match</span>}
     </div>
   );
 };

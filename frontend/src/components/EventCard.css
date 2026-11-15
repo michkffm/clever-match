@@ -50,7 +50,7 @@
   align-items: center;
   justify-content: center;
   color: white;
-  font-size: 28px;
+  font-size: 1.75rem;
   font-weight: 600;
 }
 
@@ -70,13 +70,13 @@
 
 .event-card-title {
   margin: 0 0 4px 0;
-  font-size: 16px;
+  font-size: 1rem;
   font-weight: 700;
   color: var(--color-text);
 }
 
 .event-card-style {
-  font-size: 12px;
+  font-size: 0.75rem;
   background: rgba(255, 255, 255, 0.06);
   color: var(--color-text-secondary);
   padding: 3px 8px;
@@ -89,7 +89,7 @@
   color: white;
   padding: 4px 8px;
   border-radius: 4px;
-  font-size: 11px;
+  font-size: 0.6875rem;
   font-weight: 600;
   white-space: nowrap;
 }
@@ -104,7 +104,7 @@
   display: flex;
   align-items: flex-start;
   gap: 10px;
-  font-size: 13px;
+  font-size: 0.8125rem;
 }
 
 .event-card-info-item svg {
@@ -120,21 +120,21 @@
 }
 
 .info-label {
-  font-size: 11px;
+  font-size: 0.6875rem;
   color: var(--color-text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.3px;
 }
 
 .info-value {
-  font-size: 13px;
+  font-size: 0.8125rem;
   font-weight: 600;
   color: var(--color-text);
 }
 
 .event-card-description {
   margin: 4px 0 0 0;
-  font-size: 13px;
+  font-size: 0.8125rem;
   color: var(--color-text-secondary);
   line-height: 1.4;
   display: -webkit-box;
@@ -155,7 +155,7 @@
 }
 
 .event-card-price {
-  font-size: 18px;
+  font-size: 1.125rem;
   font-weight: 700;
   color: var(--color-primary);
 }
@@ -169,7 +169,7 @@
 .event-btn {
   flex: 1;
   padding: 10px 12px;
-  font-size: 13px;
+  font-size: 0.8125rem;
   font-weight: 600;
   border: none;
   border-radius: 6px;
@@ -212,7 +212,7 @@
   }
 
   .event-card-title {
-    font-size: 15px;
+    font-size: 0.9375rem;
   }
 
   .event-card-buttons {

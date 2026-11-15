@@ -36,19 +36,19 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
+  font-size: 1.125rem;
   font-weight: 600;
 }
 
 .chat-header-text h2 {
   margin: 0;
-  font-size: 15px;
+  font-size: 0.9375rem;
   font-weight: 600;
   color: var(--color-text);
 }
 
 .chat-status {
-  font-size: 11px;
+  font-size: 0.6875rem;
   padding: 2px 6px;
   border-radius: 2px;
   margin-top: 2px;
@@ -137,7 +137,7 @@
   max-width: 60%;
   padding: 10px 14px;
   border-radius: 18px;
-  font-size: 14px;
+  font-size: 0.875rem;
   line-height: 1.4;
   word-wrap: break-word;
   position: relative;
@@ -156,7 +156,7 @@
 }
 
 .message-time {
-  font-size: 11px;
+  font-size: 0.6875rem;
   color: var(--color-text-secondary);
   padding: 0 4px;
   white-space: nowrap;
@@ -165,7 +165,7 @@
 .message-read {
   display: block;
   margin-top: 6px;
-  font-size: 11px;
+  font-size: 0.6875rem;
   color: rgba(255, 255, 255, 0.7);
 }
 
@@ -272,7 +272,7 @@
   padding: 10px 14px;
   border: 1px solid var(--color-border);
   border-radius: 20px;
-  font-size: 14px;
+  font-size: 0.875rem;
   font-family: inherit;
   color: #f8fafc;
   background: rgba(255, 255, 255, 0.1);
@@ -363,7 +363,7 @@
 
   .message-bubble {
     max-width: 80%;
-    font-size: 13px;
+    font-size: 0.8125rem;
   }
 
   .chat-input-area {
@@ -378,7 +378,7 @@
   }
 
   .chat-input {
-    font-size: 13px;
+    font-size: 0.8125rem;
     padding: 8px 12px;
   }
 }
@@ -418,12 +418,12 @@
 
 .call-header h3 {
   margin: 0;
-  font-size: 16px;
+  font-size: 1rem;
   font-weight: 700;
 }
 
 .call-header span {
-  font-size: 12px;
+  font-size: 0.75rem;
   color: var(--color-text-secondary);
 }
 
@@ -449,7 +449,7 @@
 .call-end-primary {
   width: min(320px, 100%);
   padding: 12px 18px;
-  font-size: 14px;
+  font-size: 0.875rem;
   background: linear-gradient(135deg, #ef4444 0%, #f97316 100%);
   box-shadow: 0 12px 24px rgba(239, 68, 68, 0.28);
 }
@@ -502,7 +502,7 @@
   background: var(--chat-accent-gradient);
   display: grid;
   place-items: center;
-  font-size: 36px;
+  font-size: 2.25rem;
   font-weight: 700;
 }
 

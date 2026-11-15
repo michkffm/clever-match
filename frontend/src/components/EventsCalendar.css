@@ -33,7 +33,7 @@
 
 .calendar-month {
   margin: 0;
-  font-size: 16px;
+  font-size: 1rem;
   font-weight: 700;
   color: var(--color-text);
   text-transform: capitalize;
@@ -49,7 +49,7 @@
 
 .weekday {
   text-align: center;
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: 700;
   color: var(--color-text-secondary);
   text-transform: uppercase;
@@ -74,7 +74,7 @@
   align-items: center;
   justify-content: center;
   background: rgba(255, 255, 255, 0.04);
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: 600;
   color: var(--color-text-secondary);
   min-height: 60px;
@@ -106,7 +106,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 9px;
+  font-size: 0.5625rem;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s;
@@ -126,7 +126,7 @@
 
 .legend-text {
   margin: 0;
-  font-size: 12px;
+  font-size: 0.75rem;
   color: var(--color-text-secondary);
   text-align: center;
 }
@@ -139,23 +139,23 @@
   }
 
   .calendar-month {
-    font-size: 14px;
+    font-size: 0.875rem;
   }
 
   .calendar-day {
     min-height: 50px;
-    font-size: 11px;
+    font-size: 0.6875rem;
     padding: 2px;
   }
 
   .weekday {
     padding: 6px 0;
-    font-size: 11px;
+    font-size: 0.6875rem;
   }
 
   .event-marker {
     width: 16px;
     height: 16px;
-    font-size: 8px;
+    font-size: 0.5rem;
   }
 }

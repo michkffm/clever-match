@@ -16,7 +16,7 @@
 
 .notifications-header h1 {
   margin: 0;
-  font-size: 24px;
+  font-size: 1.5rem;
   font-weight: 700;
 }
 
@@ -61,18 +61,18 @@
 }
 
 .notification-text {
-  font-size: 13px;
+  font-size: 0.8125rem;
   color: var(--color-text-secondary);
 }
 
 .notification-time {
-  font-size: 12px;
+  font-size: 0.75rem;
   color: rgba(248, 250, 252, 0.6);
   white-space: nowrap;
 }
 
 .notifications-empty {
-  font-size: 13px;
+  font-size: 0.8125rem;
   color: rgba(248, 250, 252, 0.7);
   padding: 12px 4px;
 }

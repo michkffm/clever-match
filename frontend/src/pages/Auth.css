@@ -29,7 +29,7 @@
 }
 
 .auth-subtitle {
-  font-size: 14px;
+  font-size: 0.875rem;
   color: rgba(226, 232, 240, 0.8);
   margin: 0;
 }
@@ -48,7 +48,7 @@
 }
 
 .form-label {
-  font-size: 13px;
+  font-size: 0.8125rem;
   font-weight: 600;
   color: #f8fafc;
 }
@@ -71,7 +71,7 @@
   padding: 12px 16px 12px 40px;
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 14px;
-  font-size: 14px;
+  font-size: 0.875rem;
   font-family: inherit;
   transition: all 0.2s;
   background: rgba(15, 23, 42, 0.72);
@@ -111,7 +111,7 @@
 }
 
 .form-hint {
-  font-size: 12px;
+  font-size: 0.75rem;
   color: rgba(148, 163, 184, 0.9);
   margin: 0;
 }
@@ -121,7 +121,7 @@
   color: #fecaca;
   padding: 10px 12px;
   border-radius: 12px;
-  font-size: 13px;
+  font-size: 0.8125rem;
   border: 1px solid rgba(248, 113, 113, 0.35);
 }
 
@@ -131,7 +131,7 @@
   color: white;
   border: none;
   border-radius: 14px;
-  font-size: 15px;
+  font-size: 0.9375rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.25s ease;
@@ -172,7 +172,7 @@
   position: relative;
   margin: 24px 0;
   color: rgba(148, 163, 184, 0.88);
-  font-size: 13px;
+  font-size: 0.8125rem;
 }
 
 .auth-divider::before {
@@ -199,7 +199,7 @@
   background: rgba(30, 41, 59, 0.72);
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 14px;
-  font-size: 14px;
+  font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
   display: flex;
@@ -220,7 +220,7 @@
 }
 
 .auth-footer p {
-  font-size: 13px;
+  font-size: 0.8125rem;
   color: rgba(148, 163, 184, 0.92);
   margin: 0 0 12px 0;
 }
@@ -250,7 +250,7 @@
 }
 
 .auth-links a {
-  font-size: 12px;
+  font-size: 0.75rem;
   color: #93c5fd;
   text-decoration: none;
   transition: color 0.2s;
@@ -267,7 +267,7 @@
   }
 
   .auth-title {
-    font-size: 28px;
+    font-size: 1.75rem;
   }
 }
 
@@ -312,3 +312,7 @@
 .auth-divider span { background:var(--color-bg-secondary); color:var(--color-text-secondary); }
 :root[data-theme='light'] .auth-toggle,
 :root[data-theme='light'] .auth-links a { color:#a21caf; }
+
+:root[data-theme='dark'] .auth-toggle,
+:root[data-theme='dark'] .auth-links a,
+:root[data-theme='dark'] .auth-wrapper > a { color: #f9a8d4; }

@@ -24,7 +24,7 @@
   color: white;
   padding: 6px 12px;
   border-radius: 16px;
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: 600;
   z-index: 5;
 }
@@ -37,7 +37,7 @@
   border: 1px solid var(--color-border);
   border-radius: 8px;
   padding: 8px 12px;
-  font-size: 13px;
+  font-size: 0.8125rem;
   color: var(--color-text);
   cursor: pointer;
   transition: all 0.2s;
@@ -79,7 +79,7 @@
 .pull-refresh-hint {
   position: absolute;
   bottom: 20px;
-  font-size: 12px;
+  font-size: 0.75rem;
   color: var(--color-text-secondary);
   opacity: 0.5;
   animation: pulse-hint 2s infinite;
@@ -112,12 +112,12 @@
 }
 
 .empty-state h2 {
-  font-size: 24px;
+  font-size: 1.5rem;
   color: var(--color-text);
 }
 
 .empty-state p {
-  font-size: 14px;
+  font-size: 0.875rem;
   color: var(--color-text-secondary);
 }
 

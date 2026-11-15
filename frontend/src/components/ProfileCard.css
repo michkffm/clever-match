@@ -39,7 +39,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 48px;
+  font-size: 3rem;
   background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%);
 }
 
@@ -51,7 +51,7 @@
   color: white;
   padding: 6px 12px;
   border-radius: 16px;
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: 600;
 }
 
@@ -63,7 +63,7 @@
   color: #ffd3b6;
   padding: 8px 12px;
   border-radius: 12px;
-  font-size: 13px;
+  font-size: 0.8125rem;
   font-weight: 700;
 }
 
@@ -81,14 +81,14 @@
 }
 
 .profile-name {
-  font-size: 24px;
+  font-size: 1.5rem;
   font-weight: 700;
   margin: 0;
   color: var(--color-text);
 }
 
 .profile-meta {
-  font-size: 14px;
+  font-size: 0.875rem;
   color: var(--color-text-secondary);
   margin: 4px 0 0 0;
 }
@@ -97,7 +97,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 14px;
+  font-size: 0.875rem;
   color: var(--color-text-secondary);
 }
 
@@ -113,7 +113,7 @@
   color: white;
   padding: 4px 10px;
   border-radius: 12px;
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: 600;
 }
 
@@ -142,7 +142,7 @@
 }
 
 .profile-bio {
-  font-size: 13px;
+  font-size: 0.8125rem;
   color: var(--color-text-secondary);
   margin: 4px 0;
   line-height: 1.4;
@@ -215,6 +215,6 @@ button.btn-superlike:hover {
   }
 
   .profile-name {
-    font-size: 22px;
+    font-size: 1.375rem;
   }
 }

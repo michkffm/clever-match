@@ -44,7 +44,7 @@
   background: transparent;
   border: none;
   color: #f8fafc;
-  font-size: 14px;
+  font-size: 0.875rem;
   outline: none;
 }
 
@@ -81,7 +81,7 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-size: 13px;
+  font-size: 0.8125rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -163,7 +163,7 @@
 .search-meta {
   display: inline-flex;
   gap: 10px;
-  font-size: 12px;
+  font-size: 0.75rem;
   color: rgba(248, 250, 252, 0.6);
 }
 
@@ -176,7 +176,7 @@
 
 .search-empty,
 .search-state {
-  font-size: 13px;
+  font-size: 0.8125rem;
   color: rgba(248, 250, 252, 0.7);
   padding: 8px 0;
 }

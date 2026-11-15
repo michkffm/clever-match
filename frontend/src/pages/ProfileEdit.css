@@ -22,7 +22,7 @@
 
 .profile-edit-header h1 {
   margin: 0;
-  font-size: 28px;
+  font-size: 1.75rem;
   color: var(--color-text);
 }
 
@@ -32,7 +32,7 @@
   border: none;
   border-radius: 8px;
   padding: 10px 16px;
-  font-size: 13px;
+  font-size: 0.8125rem;
   font-weight: 600;
   cursor: pointer;
   display: flex;
@@ -71,7 +71,7 @@
   background: none;
   border: none;
   padding: 12px 16px;
-  font-size: 14px;
+  font-size: 0.875rem;
   font-weight: 600;
   color: var(--color-text-secondary);
   cursor: pointer;
@@ -114,7 +114,7 @@
 }
 
 .form-section h2 {
-  font-size: 18px;
+  font-size: 1.125rem;
   font-weight: 600;
   margin: 0;
   color: var(--color-text);
@@ -133,7 +133,7 @@
 }
 
 .form-group label {
-  font-size: 13px;
+  font-size: 0.8125rem;
   font-weight: 600;
   color: var(--color-text);
 }
@@ -142,7 +142,7 @@
   padding: 10px 12px;
   border: 1px solid var(--color-border);
   border-radius: 8px;
-  font-size: 14px;
+  font-size: 0.875rem;
   font-family: inherit;
   color: var(--color-text);
   background: rgba(255, 255, 255, 0.04);
@@ -203,7 +203,7 @@
 .checkbox-input:checked + .checkbox-custom::after {
   content: '✓';
   color: white;
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: bold;
   display: flex;
   align-items: center;
@@ -242,13 +242,13 @@
 }
 
 .day-label {
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: 600;
   color: var(--color-text);
 }
 
 .day-status {
-  font-size: 11px;
+  font-size: 0.6875rem;
   color: var(--color-text-secondary);
 }
 
@@ -319,7 +319,7 @@
 }
 
 .photos-hint {
-  font-size: 12px;
+  font-size: 0.75rem;
   color: var(--color-text-secondary);
   text-align: center;
   margin: 0;
@@ -327,7 +327,7 @@
 
 /* Dances Tab */
 .dances-tab h2 {
-  font-size: 18px;
+  font-size: 1.125rem;
   font-weight: 600;
   margin: 0 0 20px 0;
   color: var(--color-text);
@@ -341,7 +341,7 @@
   }
 
   .profile-edit-header h1 {
-    font-size: 24px;
+    font-size: 1.5rem;
   }
 
   .form-row {

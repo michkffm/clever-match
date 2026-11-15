@@ -72,18 +72,18 @@
 }
 
 .slide-icon {
-  font-size: 64px;
+  font-size: 4rem;
 }
 
 .splash-title {
-  font-size: 32px;
+  font-size: 2rem;
   font-weight: 700;
   margin: 0;
   line-height: 1.3;
 }
 
 .splash-subtitle {
-  font-size: 16px;
+  font-size: 1rem;
   margin: 0;
   color: rgba(255, 255, 255, 0.9);
   line-height: 1.5;
@@ -104,7 +104,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 15px;
+  font-size: 0.9375rem;
 }
 
 .check-icon {
@@ -117,7 +117,7 @@
   align-items: center;
   gap: 12px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 0.875rem;
   color: rgba(255, 244, 238, 0.92);
   margin-bottom: 16px;
 }
@@ -147,7 +147,7 @@
 .splash-checkbox:checked + .checkbox-custom-splash::after {
   content: '✓';
   color: var(--color-primary);
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: bold;
 }
 
@@ -214,7 +214,7 @@
   color: #fff7f3;
   border: none;
   border-radius: 12px;
-  font-size: 16px;
+  font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
   display: flex;

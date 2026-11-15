@@ -109,7 +109,7 @@ body {
   width: 100%;
   min-height: 100vh;
   font-family: var(--font-sans);
-  font-size: 14px;
+  font-size: 0.875rem;
   line-height: 1.6;
   color: var(--color-text-secondary);
   background:
@@ -215,12 +215,12 @@ h6 {
   margin-bottom: 12px;
 }
 
-h1 { font-size: 32px; }
-h2 { font-size: 28px; }
-h3 { font-size: 24px; }
-h4 { font-size: 20px; }
-h5 { font-size: 16px; }
-h6 { font-size: 14px; }
+h1 { font-size: 2rem; }
+h2 { font-size: 1.75rem; }
+h3 { font-size: 1.5rem; }
+h4 { font-size: 1.25rem; }
+h5 { font-size: 1rem; }
+h6 { font-size: 0.875rem; }
 
 p {
   margin-bottom: 12px;
@@ -257,7 +257,7 @@ pre {
   border-radius: 4px;
   padding: 2px 6px;
   color: #ffd5c4;
-  font-size: 13px;
+  font-size: 0.8125rem;
 }
 
 pre {
@@ -461,3 +461,6 @@ dialog { margin:auto; max-width:min(92vw,600px); max-height:85dvh; overflow:auto
 dialog::backdrop { background:rgba(0,0,0,.65); }
 .events-container input { width:100%; min-height:44px; padding:.75rem; color:var(--color-text); background:var(--color-bg-secondary); border:1px solid var(--color-text-secondary); border-radius:.5rem; margin:.5rem 0 1rem; }
 .event-card-buttons button { min-height:44px; padding:.5rem 1rem; font:inherit; color:var(--color-text); background:var(--color-bg-tertiary); border:1px solid var(--color-text-secondary); border-radius:.5rem; }
+
+.privacy-page { background: var(--color-bg-secondary); color: var(--color-text); border-radius: 1rem; margin: 1rem auto; }
+.privacy-page a { color: var(--color-text); text-decoration: underline; }

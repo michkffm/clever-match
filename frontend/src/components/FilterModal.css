@@ -48,7 +48,7 @@
 
 .filter-modal-header h2 {
   margin: 0;
-  font-size: 20px;
+  font-size: 1.25rem;
   font-weight: 600;
   color: var(--color-text);
   flex: 1;
@@ -59,7 +59,7 @@
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.12);
   color: var(--color-text);
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: 600;
   padding: 6px 12px;
   border-radius: 999px;
@@ -108,7 +108,7 @@
 }
 
 .filter-section-title {
-  font-size: 15px;
+  font-size: 0.9375rem;
   font-weight: 600;
   color: var(--color-text);
   margin: 0 0 18px 0;
@@ -133,7 +133,7 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
-  font-size: 12px;
+  font-size: 0.75rem;
   color: var(--color-text-secondary);
 }
 
@@ -144,7 +144,7 @@
   padding: 8px 10px;
   background: rgba(15, 23, 42, 0.72);
   color: var(--color-text);
-  font-size: 14px;
+  font-size: 0.875rem;
   font-family: inherit;
 }
 
@@ -155,7 +155,7 @@
 }
 
 .filter-slider-group > label {
-  font-size: 14px;
+  font-size: 0.875rem;
   color: var(--color-text-secondary);
   font-weight: 600;
 }
@@ -163,7 +163,7 @@
 .slider-range-labels {
   display: flex;
   justify-content: space-between;
-  font-size: 14px;
+  font-size: 0.875rem;
   font-weight: 600;
   color: var(--filter-accent-start);
 }
@@ -292,7 +292,7 @@
 }
 
 .slider-values-label {
-  font-size: 12px;
+  font-size: 0.75rem;
   color: var(--color-text-secondary);
   text-align: center;
 }
@@ -309,7 +309,7 @@
   align-items: center;
   gap: 12px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 0.875rem;
   color: var(--color-text);
   user-select: none;
 }
@@ -339,7 +339,7 @@
 .checkbox-input:checked + .checkbox-custom::after {
   content: '✓';
   color: white;
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: bold;
 }
 
@@ -359,7 +359,7 @@
   align-items: center;
   gap: 12px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 0.875rem;
   color: var(--color-text);
   user-select: none;
 }
@@ -411,7 +411,7 @@
 .filter-btn {
   flex: 1;
   padding: 12px 16px;
-  font-size: 15px;
+  font-size: 0.9375rem;
   font-weight: 600;
   border: none;
   border-radius: 8px;

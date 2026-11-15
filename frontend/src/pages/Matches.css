@@ -16,7 +16,7 @@
 
 .matches-header h1 {
   margin: 0;
-  font-size: 24px;
+  font-size: 1.5rem;
   font-weight: 700;
   color: var(--color-text);
   flex: 1;
@@ -28,7 +28,7 @@
   color: white;
   padding: 6px 12px;
   border-radius: 12px;
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: 600;
   white-space: nowrap;
   position: absolute;
@@ -74,7 +74,7 @@
 }
 
 .matches-empty-icon {
-  font-size: 64px;
+  font-size: 4rem;
   animation: pulse 2s infinite;
 }
 
@@ -89,14 +89,14 @@
 
 .matches-empty h2 {
   margin: 0;
-  font-size: 20px;
+  font-size: 1.25rem;
   font-weight: 600;
   color: var(--color-text);
 }
 
 .matches-empty p {
   margin: 0;
-  font-size: 14px;
+  font-size: 0.875rem;
   color: var(--color-text-secondary);
 }
 
@@ -112,7 +112,7 @@
   }
 
   .matches-header h1 {
-    font-size: 20px;
+    font-size: 1.25rem;
   }
 
   .matches-list {
