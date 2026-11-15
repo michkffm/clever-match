@@ -56,6 +56,10 @@ const WebSocket = require('ws');
   const loginA=await request('/auth/login',{email:'a@example.invalid',password}),loginB=await request('/auth/login',{email:'b@example.invalid',password});
   ok(loginA.status===200&&loginB.status===200,'verified users can sign in');
   ok(loginA.cookie.includes('Partitioned')&&loginA.cookie.includes('Secure')&&loginA.cookie.includes('HttpOnly'),'cross-site session cookie is secure and partitioned');
+  await users.updateOne({_id:ub._id},{$set:{refreshTokenIp:'203.0.113.10'}});
+  const movedNetwork=await fetch(base+'/auth/refresh',{method:'POST',headers:{Cookie:loginB.cookie.split(';')[0],Origin:'http://localhost:5173'}});
+  ok(movedNetwork.status===200,'legitimate network address change preserves session');
+
   const ta=loginA.data.token,tb=loginB.data.token;
   ok((await request('/auth/login',{email:'a@example.invalid',password:'wrong'})).status===401,'incorrect password rejected');
   const profile=await request('/profiles/'+bid,null,ta);

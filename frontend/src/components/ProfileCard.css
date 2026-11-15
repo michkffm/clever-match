@@ -60,7 +60,7 @@
   bottom: 12px;
   right: 12px;
   background: rgba(20, 16, 21, 0.86);
-  color: #ffd3b6;
+  color: #ddd6fe;
   padding: 8px 12px;
   border-radius: 12px;
   font-size: 0.8125rem;
@@ -190,7 +190,7 @@ button.btn-like {
 
 button.btn-like:hover {
   transform: scale(1.15);
-  box-shadow: 0 10px 24px rgba(255, 107, 95, 0.34);
+  box-shadow: 0 10px 24px rgba(236, 72, 153, 0.34);
 }
 
 button.btn-superlike {

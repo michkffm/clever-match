@@ -7,14 +7,14 @@
 /* === Root Variables (Dark Theme) === */
 :root {
   /* Brand Palette */
-  --color-primary: #ff6b5f;
-  --color-primary-dark: #d9485f;
-  --color-accent: #ff9b54;
-  --color-accent-dark: #f97316;
-  --color-pink: #ff6b5f;
-  --color-purple: #ff9b54;
-  --color-pink-dark: #d9485f;
-  --color-purple-dark: #f97316;
+  --color-primary: #f472b6;
+  --color-primary-dark: #be185d;
+  --color-accent: #a78bfa;
+  --color-accent-dark: #7c3aed;
+  --color-pink: #f472b6;
+  --color-purple: #a78bfa;
+  --color-pink-dark: #be185d;
+  --color-purple-dark: #7c3aed;
 
   /* Neutral Colors */
   --color-white: #ffffff;
@@ -30,16 +30,16 @@
   --color-gray-900: #111827;
 
   /* Background Colors */
-  --color-bg-primary: #120f14;
-  --color-bg-secondary: #1d161c;
-  --color-bg-tertiary: #2a1f24;
-  --color-surface: rgba(30, 22, 29, 0.82);
-  --color-surface-strong: #211820;
-  --color-surface-soft: rgba(47, 34, 42, 0.92);
+  --color-bg-primary: #121022;
+  --color-bg-secondary: #1c1830;
+  --color-bg-tertiary: #29223f;
+  --color-surface: rgba(28, 24, 48, 0.82);
+  --color-surface-strong: #211b38;
+  --color-surface-soft: rgba(41, 34, 63, 0.92);
   --color-neutral-light: rgba(255, 255, 255, 0.06);
-  --color-text: #f7ede8;
-  --color-text-secondary: #c8b7af;
-  --color-border: rgba(255, 149, 120, 0.18);
+  --color-text: #f5f3ff;
+  --color-text-secondary: #c4bdd6;
+  --color-border: rgba(167, 139, 250, 0.18);
 
   /* Status Colors */
   --color-success: #22c55e;
@@ -56,7 +56,7 @@
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
   --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.15);
-  --shadow-glow: 0 0 28px rgba(255, 107, 95, 0.22);
+  --shadow-glow: 0 0 28px rgba(236, 72, 153, 0.22);
 
   /* Font Family */
   --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
@@ -76,6 +76,8 @@
 }
 
 :root[data-theme='light'] {
+  --color-primary: #9d174d;
+  --color-accent: #6d28d9;
   --color-bg-primary: #f8fafc;
   --color-bg-secondary: #ffffff;
   --color-bg-tertiary: #f1f5f9;
@@ -256,7 +258,7 @@ pre {
   background: rgba(255, 255, 255, 0.06);
   border-radius: 4px;
   padding: 2px 6px;
-  color: #ffd5c4;
+  color: #fbcfe8;
   font-size: 0.8125rem;
 }
 
@@ -464,3 +466,5 @@ dialog::backdrop { background:rgba(0,0,0,.65); }
 
 .privacy-page { background: var(--color-bg-secondary); color: var(--color-text); border-radius: 1rem; margin: 1rem auto; }
 .privacy-page a { color: var(--color-text); text-decoration: underline; }
+
+.display-controls .active-theme { font-weight: 750; text-decoration: underline; text-underline-offset: .2em; }

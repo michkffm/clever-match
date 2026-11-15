@@ -74,7 +74,7 @@
 
 .premium-plan-card.recommended {
   border-color: var(--color-primary);
-  box-shadow: 0 20px 44px rgba(255, 107, 95, 0.18);
+  box-shadow: 0 20px 44px rgba(236, 72, 153, 0.18);
   transform: scale(1.05);
 }
 

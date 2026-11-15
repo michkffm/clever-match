@@ -1122,15 +1122,8 @@ app.post('/api/auth/refresh', requireSameOrigin, refreshLimiter, asyncRoute(asyn
 
   // Check if stored refresh token matches and hasn't expired
   const refreshMeta = getRequestMetadata(req);
-  if (user.refreshTokenIp && user.refreshTokenIp !== refreshMeta.ip) {
-    user.refreshToken = undefined;
-    user.refreshTokenExpiresAt = undefined;
-    user.refreshTokenIp = undefined;
-    user.refreshTokenUserAgent = undefined;
-    await user.save();
-    return sendError(res, 401, 'Refresh token IP mismatch', 'REFRESH_IP_MISMATCH');
-  }
-
+  // Network addresses can change legitimately on mobile networks and behind proxies.
+  // Authenticate the signed, stored refresh token and its device context instead.
   if (user.refreshTokenUserAgent && user.refreshTokenUserAgent !== refreshMeta.userAgent) {
     user.refreshToken = undefined;
     user.refreshTokenExpiresAt = undefined;

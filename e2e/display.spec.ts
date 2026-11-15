@@ -6,12 +6,12 @@ test('language, dark mode and text preferences remain available before login', a
   await expect(page.locator('html')).toHaveAttribute('lang', 'en');
   await expect(page.getByLabel('Email address', { exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Log in', exact: true })).toBeVisible();
-  const dark = page.getByRole('button', { name: 'Dark mode', exact: true });
+  const dark = page.getByRole('button', { name: 'Light / Dark', exact: true });
+  await expect(dark).toHaveCount(1);
   await dark.click();
-  await expect(dark).toHaveAttribute('aria-pressed', 'true');
-  const light = page.getByRole('button', { name: 'Light mode', exact: true });
-  await light.click();
-  await expect(light).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  await dark.click();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
   await expect(dark).toHaveAttribute('aria-pressed', 'false');
   const label = page.locator('label[for="email"]');
   const normalSize = await label.evaluate(el => parseFloat(getComputedStyle(el).fontSize));
@@ -45,6 +45,6 @@ test('enlarged text stays readable on narrow screens', async ({ page }) => {
     await page.setViewportSize({ width, height: 844 });
     expect(await label.evaluate(el => parseFloat(getComputedStyle(el).fontSize))).toBeCloseTo(original * 1.25);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-    await expect(page.getByRole('button', { name: 'Hellmodus', exact: true })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Hell / Dark', exact: true })).toBeVisible();
   }
 });

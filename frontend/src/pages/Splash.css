@@ -4,7 +4,7 @@
   height: 100vh;
   overflow: hidden;
   background:
-    radial-gradient(circle at top, rgba(255, 107, 95, 0.18), transparent 30%),
+    radial-gradient(circle at top, rgba(236, 72, 153, 0.18), transparent 30%),
     linear-gradient(180deg, #161117 0%, #120f14 100%);
 }
 
@@ -140,8 +140,8 @@
 }
 
 .splash-checkbox:checked + .checkbox-custom-splash {
-  background-color: #fff4ee;
-  border-color: #fff4ee;
+  background-color: #faf5ff;
+  border-color: #faf5ff;
 }
 
 .splash-checkbox:checked + .checkbox-custom-splash::after {
@@ -156,7 +156,7 @@
 }
 
 .splash-link {
-  color: #fff4ee;
+  color: #faf5ff;
   text-decoration: underline;
   font-weight: 600;
 }
@@ -183,7 +183,7 @@
 }
 
 .dot.active {
-  background: #fff4ee;
+  background: #faf5ff;
   width: 24px;
   border-radius: 4px;
 }
@@ -211,7 +211,7 @@
   max-width: 280px;
   height: 52px;
   background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%);
-  color: #fff7f3;
+  color: #faf5ff;
   border: none;
   border-radius: 12px;
   font-size: 1rem;
@@ -227,7 +227,7 @@
 
 .splash-button:hover:not(.disabled) {
   transform: translateX(-50%) scale(1.05);
-  box-shadow: 0 14px 30px rgba(255, 107, 95, 0.24);
+  box-shadow: 0 14px 30px rgba(236, 72, 153, 0.24);
 }
 
 .splash-button.disabled {
