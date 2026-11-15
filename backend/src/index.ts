@@ -1,3 +1,4 @@
+import { passwordResetConfigured, sendPasswordReset } from './config/email.js';
 import 'dotenv/config';
 import crypto from 'crypto';
 import http from 'http';
@@ -30,6 +31,12 @@ import {
   verifyPassword,
 } from './middleware/auth.js';
 import { uploadProfileImage } from './config/cloudinary.js';
+
+function asyncRoute(handler: (req: Request, res: Response, next: NextFunction) => Promise<unknown>) {
+  return (req: Request, res: Response, next: NextFunction): void => {
+    void handler(req, res, next).catch(next);
+  };
+}
 
 const app: Express = express();
 const PORT = process.env.PORT || 5000;
@@ -243,6 +250,15 @@ type PersistedUser = {
   _id: { toString(): string };
   email: string;
   password: string;
+  authVersion?: string | null;
+  gender?: 'M' | 'W' | 'D' | 'other' | null;
+  height?: number | null;
+  athleticism?: 'very-sporty' | 'sporty' | 'normal' | 'not-sporty' | null;
+  figure?: 'slim' | 'normal' | 'curvy' | 'muscular' | null;
+  calendar?: boolean[];
+  customDances?: string[];
+  danceLevels?: { danceId?: string | null; level?: number | null }[];
+
   firstName: string;
   lastName: string;
   age?: number | null;
@@ -253,6 +269,7 @@ type PersistedUser = {
   danceStyles: string[];
   profilePhotos: string[];
   privateProfile?: boolean;
+  notificationPreferences?: { messages?: boolean; matches?: boolean; events?: boolean; likes?: boolean } | null;
   location?: { lat?: number | null; lng?: number | null; city?: string | null } | null;
   preferences?: {
     minAge?: number | null;
@@ -359,7 +376,7 @@ function sanitizePhotoUrls(photos?: string[] | null): string[] {
     .filter(
       (url) =>
         !url.includes('via.placeholder.com') &&
-        !url.includes('/tanzmatch.svg') &&
+        !url.includes('/clever-match.svg') &&
         !url.includes('/user-placeholder.svg')
     );
 
@@ -395,7 +412,15 @@ function toProfileResponse(user: PersistedUser): Profile {
     profilePhotos: sanitizedPhotos,
     location: asOptionalLocation(user),
     preferences: asOptionalPreferences(user),
+    gender: user.gender ?? 'other',
+    height: asOptionalNumber(user.height),
+    athleticism: user.athleticism ?? 'normal',
+    figure: user.figure ?? 'normal',
+    calendar: user.calendar ?? [],
+    customDances: user.customDances ?? [],
+    danceLevels: (user.danceLevels ?? []).filter(item => typeof item.danceId === 'string' && typeof item.level === 'number' && item.level >= 1 && item.level <= 5).map(item => ({ danceId: item.danceId!, level: item.level as 1 | 2 | 3 | 4 | 5 })),
     privateProfile: user.privateProfile ?? false,
+    notificationPreferences: { messages: true, matches: true, events: true, likes: false, ...user.notificationPreferences },
   };
 }
 
@@ -747,7 +772,7 @@ app.get('/api/health', (req: Request, res: Response) => {
 });
 
 // === Auth Routes ===
-app.post('/api/auth/login', authLimiter, async (req: Request, res: Response) => {
+app.post('/api/auth/login', authLimiter, asyncRoute(async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
@@ -773,12 +798,14 @@ app.post('/api/auth/login', authLimiter, async (req: Request, res: Response) => 
     sub: user._id.toString(),
     email: user.email,
     role: user.role,
+    version: user.authVersion ?? '',
   });
 
   const refreshToken = signRefreshToken({
     sub: user._id.toString(),
     email: user.email,
     role: user.role,
+    version: user.authVersion ?? '',
   });
 
   // Store refresh token hash in database with expiration + metadata
@@ -800,27 +827,29 @@ app.post('/api/auth/login', authLimiter, async (req: Request, res: Response) => 
   };
 
   res.json(response);
-});
+}));
 
-app.post('/api/auth/guest', authLimiter, async (_req: Request, res: Response) => {
+app.post('/api/auth/guest', authLimiter, asyncRoute(async (_req: Request, res: Response) => {
   const user = await UserModel.create({
     email: `guest-${crypto.randomUUID()}@tanzmatch.local`,
     password: await hashPassword(crypto.randomUUID()),
     firstName: 'Gast',
     lastName: 'Nutzer',
-    bio: 'Ich nutze TanzMatch als Gast.',
+    bio: 'Ich nutze Clever Match als Gast.',
   });
 
   const token = signAuthToken({
     sub: user._id.toString(),
     email: user.email,
     role: user.role,
+    version: user.authVersion ?? '',
   });
 
   const refreshToken = signRefreshToken({
     sub: user._id.toString(),
     email: user.email,
     role: user.role,
+    version: user.authVersion ?? '',
   });
 
   user.refreshToken = hashToken(refreshToken);
@@ -841,9 +870,9 @@ app.post('/api/auth/guest', authLimiter, async (_req: Request, res: Response) =>
   };
 
   res.json(response);
-});
+}));
 
-app.post('/api/auth/register', authLimiter, async (req: Request, res: Response) => {
+app.post('/api/auth/register', authLimiter, asyncRoute(async (req: Request, res: Response) => {
   const { email, password, firstName, lastName, zipCode } = req.body;
 
   if (
@@ -914,9 +943,9 @@ app.post('/api/auth/register', authLimiter, async (req: Request, res: Response) 
   };
 
   res.status(201).json(response);
-});
+}));
 
-app.post('/api/auth/logout', requireSameOrigin, async (req: Request, res: Response) => {
+app.post('/api/auth/logout', requireSameOrigin, asyncRoute(async (req: Request, res: Response) => {
   const authReq = req as AuthenticatedRequest;
   const refreshToken = req.cookies?.[REFRESH_COOKIE_NAME];
 
@@ -942,19 +971,19 @@ app.post('/api/auth/logout', requireSameOrigin, async (req: Request, res: Respon
 
   res.clearCookie(REFRESH_COOKIE_NAME, refreshCookieOptions);
   res.json({ message: 'Logged out successfully' });
-});
+}));
 
 // === Block Routes ===
-app.get('/api/blocks', requireAuth, async (req: Request, res: Response) => {
+app.get('/api/blocks', requireAuth, asyncRoute(async (req: Request, res: Response) => {
   const user = await getCurrentUser(req);
   if (!user) {
     return sendError(res, 404, 'User not found', 'USER_NOT_FOUND');
   }
 
   res.json({ data: user.blockedUserIds ?? [] });
-});
+}));
 
-app.post('/api/blocks/:userId', requireAuth, async (req: Request, res: Response) => {
+app.post('/api/blocks/:userId', requireAuth, asyncRoute(async (req: Request, res: Response) => {
   const authReq = req as AuthenticatedRequest;
   if (!authReq.authUserId) {
     return sendError(res, 401, 'Authentication required', 'AUTH_REQUIRED');
@@ -982,9 +1011,9 @@ app.post('/api/blocks/:userId', requireAuth, async (req: Request, res: Response)
   });
 
   res.json({ blockedUserIds: updatedUser.blockedUserIds ?? [] });
-});
+}));
 
-app.delete('/api/blocks/:userId', requireAuth, async (req: Request, res: Response) => {
+app.delete('/api/blocks/:userId', requireAuth, asyncRoute(async (req: Request, res: Response) => {
   const authReq = req as AuthenticatedRequest;
   if (!authReq.authUserId) {
     return sendError(res, 401, 'Authentication required', 'AUTH_REQUIRED');
@@ -1008,9 +1037,9 @@ app.delete('/api/blocks/:userId', requireAuth, async (req: Request, res: Respons
   });
 
   res.json({ blockedUserIds: updatedUser.blockedUserIds ?? [] });
-});
+}));
 
-app.get('/api/admin/block-audit', requireAuth, async (req: Request, res: Response) => {
+app.get('/api/admin/block-audit', requireAuth, asyncRoute(async (req: Request, res: Response) => {
   const user = await getCurrentUser(req);
   if (!user || user.role !== 'admin') {
     return sendError(res, 403, 'Access denied', 'ACCESS_DENIED');
@@ -1018,13 +1047,13 @@ app.get('/api/admin/block-audit', requireAuth, async (req: Request, res: Respons
 
   const records = await BlockAuditModel.find().sort({ createdAt: -1 }).limit(200);
   res.json({ data: records });
-});
+}));
 
 app.post(
   '/api/auth/revoke-all',
   requireSameOrigin,
   requireAuth,
-  async (req: Request, res: Response) => {
+  asyncRoute(async (req: Request, res: Response) => {
     const authReq = req as AuthenticatedRequest;
     if (!authReq.authUserId) {
       return sendError(res, 401, 'Authentication required', 'AUTH_REQUIRED');
@@ -1043,10 +1072,10 @@ app.post(
 
     res.clearCookie(REFRESH_COOKIE_NAME, refreshCookieOptions);
     res.json({ message: 'Sessions revoked' });
-  }
+  })
 );
 
-app.post('/api/auth/refresh', requireSameOrigin, refreshLimiter, async (req: Request, res: Response) => {
+app.post('/api/auth/refresh', requireSameOrigin, refreshLimiter, asyncRoute(async (req: Request, res: Response) => {
   const refreshToken = req.cookies?.[REFRESH_COOKIE_NAME];
 
   if (!refreshToken) {
@@ -1099,6 +1128,7 @@ app.post('/api/auth/refresh', requireSameOrigin, refreshLimiter, async (req: Req
     sub: user._id.toString(),
     email: user.email,
     role: user.role,
+    version: user.authVersion ?? '',
   });
 
   // Optionally generate new refresh token (rotate refresh token for better security)
@@ -1106,6 +1136,7 @@ app.post('/api/auth/refresh', requireSameOrigin, refreshLimiter, async (req: Req
     sub: user._id.toString(),
     email: user.email,
     role: user.role,
+    version: user.authVersion ?? '',
   });
 
   // Update stored refresh token
@@ -1126,30 +1157,60 @@ app.post('/api/auth/refresh', requireSameOrigin, refreshLimiter, async (req: Req
   };
 
   res.json(response);
-});
+}));
 
-app.post('/api/auth/forgot-password', passwordResetLimiter, async (req: Request, res: Response) => {
-  const { email } = req.body;
-
-  if (!email) {
-    return sendError(res, 400, 'Email required', 'VALIDATION_ERROR');
+app.post('/api/auth/forgot-password', passwordResetLimiter, asyncRoute(async (req: Request, res: Response) => {
+  if (!passwordResetConfigured()) return sendError(res, 503, 'Password reset is unavailable', 'PASSWORD_RESET_UNAVAILABLE');
+  const { email, language } = req.body;
+  if (typeof email !== 'string' || email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return sendError(res, 400, 'Valid email required', 'VALIDATION_ERROR');
   }
+  const user = await UserModel.findOne({ email: email.trim().toLowerCase() });
+  if (user && !user.email.endsWith('@tanzmatch.local')) {
+    const token = crypto.randomBytes(32).toString('hex');
+    const digest = hashToken(token);
+    await UserModel.updateOne({ _id: user._id }, { $set: {
+      passwordResetToken: digest,
+      passwordResetExpiresAt: new Date(Date.now() + 30 * 60 * 1000),
+    } });
+    try {
+      await sendPasswordReset(user.email, token, language === 'en' ? 'en' : 'de');
+    } catch {
+      await UserModel.updateOne({ _id: user._id, passwordResetToken: digest }, {
+        $unset: { passwordResetToken: 1, passwordResetExpiresAt: 1 },
+      });
+      console.error('[Email] Password-reset delivery failed');
+    }
+  }
+  // Identical responses prevent disclosure of registered email addresses.
+  res.json({ message: 'If the account exists, a reset email will be sent.' });
+}));
 
-  return res.status(503).json({
-    error: 'Password reset is temporarily unavailable',
-    code: 'PASSWORD_RESET_UNAVAILABLE',
+app.post('/api/auth/reset-password', passwordResetLimiter, asyncRoute(async (req: Request, res: Response) => {
+  const { token, password } = req.body;
+  if (typeof token !== 'string' || !/^[a-f0-9]{64}$/.test(token)) {
+    return sendError(res, 400, 'Invalid or expired reset link', 'INVALID_RESET_TOKEN');
+  }
+  const passwordError = validatePassword(password);
+  if (passwordError) return sendError(res, 400, passwordError, 'VALIDATION_ERROR');
+  const passwordHash = await hashPassword(password);
+  const user = await UserModel.findOneAndUpdate({
+    passwordResetToken: hashToken(token), passwordResetExpiresAt: { $gt: new Date() },
+  }, {
+    $set: { password: passwordHash, authVersion: crypto.randomUUID() },
+    $unset: { passwordResetToken: 1, passwordResetExpiresAt: 1, refreshToken: 1,
+      refreshTokenExpiresAt: 1, refreshTokenIp: 1, refreshTokenUserAgent: 1 },
   });
-});
-
-app.post('/api/auth/reset-password', passwordResetLimiter, async (req: Request, res: Response) => {
-  return res.status(503).json({
-    error: 'Password reset is temporarily unavailable',
-    code: 'PASSWORD_RESET_UNAVAILABLE',
-  });
-});
+  if (!user) return sendError(res, 400, 'Invalid or expired reset link', 'INVALID_RESET_TOKEN');
+  for (const [socket, meta] of [...callClientMeta, ...chatClientMeta]) {
+    if (meta.userId === user._id.toString()) socket.close(1008, 'Session expired');
+  }
+  res.clearCookie(REFRESH_COOKIE_NAME, refreshCookieOptions);
+  res.json({ message: 'Password updated. Please sign in again.' });
+}));
 
 // === Profile Routes ===
-app.get('/api/profile', requireAuth, async (req: Request, res: Response) => {
+app.get('/api/profile', requireAuth, asyncRoute(async (req: Request, res: Response) => {
   const user = await getCurrentUser(req);
 
   if (!user) {
@@ -1157,15 +1218,22 @@ app.get('/api/profile', requireAuth, async (req: Request, res: Response) => {
   }
 
   res.json(toProfileResponse(user));
-});
+}));
 
-app.put('/api/profile', requireAuth, async (req: Request, res: Response) => {
+app.put('/api/profile', requireAuth, asyncRoute(async (req: Request, res: Response) => {
   const user = await getCurrentUser(req);
 
   if (!user) {
     return sendError(res, 404, 'User not found', 'USER_NOT_FOUND');
   }
 
+  if (req.body.bio !== undefined && (typeof req.body.bio !== 'string' || req.body.bio.length > 2000)) return sendError(res, 400, 'Invalid bio', 'VALIDATION_ERROR');
+  for (const key of ['interests', 'danceStyles', 'customDances']) {
+    const value = req.body[key];
+    if (value !== undefined && (!Array.isArray(value) || value.length > 50 || value.some(item => typeof item !== 'string' || item.length > 100))) return sendError(res, 400, 'Invalid profile list', 'VALIDATION_ERROR');
+  }
+  if (req.body.calendar !== undefined && (!Array.isArray(req.body.calendar) || req.body.calendar.length !== 7 || req.body.calendar.some((day: unknown) => typeof day !== 'boolean'))) return sendError(res, 400, 'Invalid calendar', 'VALIDATION_ERROR');
+  if (req.body.danceLevels !== undefined && (!Array.isArray(req.body.danceLevels) || req.body.danceLevels.length > 50 || req.body.danceLevels.some((item: { danceId?: unknown; level?: unknown } | null) => !item || typeof item.danceId !== 'string' || item.danceId.length > 100 || !Number.isInteger(item.level) || Number(item.level) < 1 || Number(item.level) > 5))) return sendError(res, 400, 'Invalid dance levels', 'VALIDATION_ERROR');
   const sanitizedProfilePhotos = Array.isArray(req.body.profilePhotos)
     ? req.body.profilePhotos.filter(
         (url: unknown) => typeof url === 'string' && /^https?:\/\//.test(url)
@@ -1176,6 +1244,13 @@ app.put('/api/profile', requireAuth, async (req: Request, res: Response) => {
     firstName: req.body.firstName,
     lastName: req.body.lastName,
     age: req.body.age,
+    gender: req.body.gender,
+    height: req.body.height,
+    athleticism: req.body.athleticism,
+    figure: req.body.figure,
+    calendar: req.body.calendar,
+    customDances: req.body.customDances,
+    danceLevels: req.body.danceLevels,
     zipCode: req.body.zipCode,
     bio: req.body.bio,
     interests: req.body.interests,
@@ -1183,6 +1258,13 @@ app.put('/api/profile', requireAuth, async (req: Request, res: Response) => {
     location: req.body.location,
     preferences: req.body.preferences,
   };
+
+  if (req.body.notificationPreferences && typeof req.body.notificationPreferences === 'object') {
+    for (const key of ['messages', 'matches', 'events', 'likes']) {
+      const value = req.body.notificationPreferences[key];
+      if (typeof value === 'boolean') allowedUpdates[`notificationPreferences.${key}`] = value;
+    }
+  }
 
   if (typeof req.body.privateProfile === 'boolean') {
     allowedUpdates.privateProfile = req.body.privateProfile;
@@ -1202,14 +1284,14 @@ app.put('/api/profile', requireAuth, async (req: Request, res: Response) => {
   }
 
   res.json(toProfileResponse(updatedUser));
-});
+}));
 
 app.post(
   '/api/profile/photos',
   requireAuth,
   photoUploadLimiter,
   upload.array('files', 6),
-  async (req: Request, res: Response) => {
+  asyncRoute(async (req: Request, res: Response) => {
     const authReq = req as AuthenticatedRequest;
     const user = await getCurrentUser(authReq);
 
@@ -1235,11 +1317,11 @@ app.post(
     await user.save();
 
     res.status(201).json({ data: uploadedUrls, status: 201 });
-  }
+  })
 );
 
 // === Profiles Routes (Discovery) ===
-app.get('/api/profiles', requireAuth, async (req: Request, res: Response) => {
+app.get('/api/profiles', requireAuth, asyncRoute(async (req: Request, res: Response) => {
   const currentUser = await getCurrentUser(req);
   if (!currentUser) {
     return sendError(res, 404, 'User not found', 'USER_NOT_FOUND');
@@ -1274,22 +1356,21 @@ app.get('/api/profiles', requireAuth, async (req: Request, res: Response) => {
     return {
       id: profile._id.toString(),
       firstName: profile.firstName,
-      lastName: profile.lastName,
       age: asOptionalNumber(profile.age),
-      gender: 'W', // Note: should come from profile if stored
-      height: 170, // Note: should come from profile if stored
-      city: profile.location?.city || 'Unknown',
-      athleticism: 'normal' as const, // Note: should come from profile
-      figure: 'normal' as const, // Note: should come from profile
+      gender: profile.gender ?? 'other',
+      height: profile.height,
+      city: profile.location?.city || '',
+      athleticism: profile.athleticism ?? 'normal',
+      figure: profile.figure ?? 'normal',
       bio: profile.bio,
-      dances: [], // Will be populated from profile.danceStyles
-      customDances: [],
+      dances: profile.danceStyles.map(danceId => ({ danceId, level: 1 })),
+      customDances: profile.customDances ?? [],
       searchPurposes: ['hobby'] as const,
       photos,
       videos: [],
-      calendar: [true, true, true, true, true, true, true],
+      calendar: profile.calendar ?? [],
       verified: false,
-      online: true,
+      online: false,
       created: profile.createdAt,
       lastSeen: profile.createdAt,
       distance,
@@ -1303,9 +1384,9 @@ app.get('/api/profiles', requireAuth, async (req: Request, res: Response) => {
     page: 1,
     limit: 50,
   });
-});
+}));
 
-app.get('/api/profiles/:id', requireAuth, async (req: Request, res: Response) => {
+app.get('/api/profiles/:id', requireAuth, asyncRoute(async (req: Request, res: Response) => {
   const user = await UserModel.findById(req.params.id);
 
   if (!user) {
@@ -1331,10 +1412,46 @@ app.get('/api/profiles/:id', requireAuth, async (req: Request, res: Response) =>
     }
   }
   res.json(toPublicProfileResponse(user, viewer ?? undefined));
-});
+}));
+
+app.get('/api/notifications', requireAuth, asyncRoute(async (req: Request, res: Response) => {
+  const user = await getCurrentUser(req);
+  if (!user) return sendError(res, 404, 'User not found', 'USER_NOT_FOUND');
+  const id = user._id.toString();
+  const blocked = user.blockedUserIds ?? [];
+  const reverseBlocks = await UserModel.find({ blockedUserIds: id }).select('_id').lean();
+  const excluded = [...blocked, ...reverseBlocks.map(item => item._id.toString())];
+  const preferences = { messages: true, matches: true, events: true, likes: false, ...user.notificationPreferences };
+  const matches = await MatchModel.find({ mutualMatch: true, unmatchedAt: null,
+    $or: [{ actorUserId: id }, { targetUserId: id }],
+    actorUserId: { $nin: excluded }, targetUserId: { $nin: excluded },
+  }).sort({ updatedAt: -1 }).limit(100).lean();
+  const messages = preferences.messages ? await MessageModel.find({
+    matchId: { $in: matches.map(item => item._id.toString()) },
+    senderId: { $ne: id }, read: false,
+  }).sort({ createdAt: -1 }).limit(100).lean() : [];
+  const items: { id: string; type: string; createdAt: string; path: string }[] = messages.map(item => ({
+    id: `message-${item._id}`, type: 'message', createdAt: item.createdAt.toISOString(), path: `/chat/${item.matchId}`,
+  }));
+  if (preferences.matches) for (const match of matches) items.push({
+    id: `match-${match._id}`, type: 'match', createdAt: match.updatedAt.toISOString(), path: `/chat/${match._id}`,
+  });
+  if (preferences.likes) {
+    const likes = await MatchModel.find({ targetUserId: id, actorUserId: { $nin: excluded },
+      type: { $in: ['like', 'superlike'] }, mutualMatch: false, unmatchedAt: null,
+    }).sort({ updatedAt: -1 }).limit(50).lean();
+    for (const like of likes) items.push({ id: `like-${like._id}`, type: 'like', createdAt: like.updatedAt.toISOString(), path: '/matches' });
+  }
+  if (preferences.events) {
+    const events = await EventModel.find({ attendeeIds: id, date: { $gte: new Date() } }).sort({ date: 1 }).limit(50).lean();
+    for (const event of events) items.push({ id: `event-${event._id}`, type: 'event', createdAt: event.createdAt.toISOString(), path: '/events' });
+  }
+  items.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  res.json({ data: items.slice(0, 100), unreadMessages: messages.length });
+}));
 
 // === Matches Routes ===
-app.get('/api/matches', requireAuth, async (req: Request, res: Response) => {
+app.get('/api/matches', requireAuth, asyncRoute(async (req: Request, res: Response) => {
   const user = await getCurrentUser(req);
 
   if (!user) {
@@ -1346,15 +1463,16 @@ app.get('/api/matches', requireAuth, async (req: Request, res: Response) => {
     $or: [{ actorUserId: currentUserId }, { targetUserId: currentUserId }],
     type: { $in: ['like', 'superlike'] },
     mutualMatch: true,
+    unmatchedAt: null,
   }).sort({ createdAt: -1 });
 
   res.json({
     data: matches.map((match) => toMatchResponse(match, currentUserId)),
     message: matches.length === 0 ? 'No matches yet' : undefined,
   });
-});
+}));
 
-app.post('/api/matches', requireAuth, async (req: Request, res: Response) => {
+app.post('/api/matches', requireAuth, asyncRoute(async (req: Request, res: Response) => {
   const { userId, type } = req.body;
 
   if (!userId || !type) {
@@ -1415,10 +1533,10 @@ app.post('/api/matches', requireAuth, async (req: Request, res: Response) => {
   }
 
   res.status(201).json(toMatchResponse(match, currentUser._id.toString()));
-});
+}));
 
 // === Messages Routes ===
-app.get('/api/messages/:matchId', requireAuth, async (req: Request, res: Response) => {
+app.get('/api/messages/:matchId', requireAuth, asyncRoute(async (req: Request, res: Response) => {
   const authReq = req as AuthenticatedRequest;
 
   if (!authReq.authUserId || !(await userCanAccessMatch(req.params.matchId, authReq.authUserId))) {
@@ -1448,9 +1566,9 @@ app.get('/api/messages/:matchId', requireAuth, async (req: Request, res: Respons
     data: messages.map(toMessageResponse),
     matchId: req.params.matchId,
   });
-});
+}));
 
-app.post('/api/messages/:matchId/read', requireAuth, async (req: Request, res: Response) => {
+app.post('/api/messages/:matchId/read', requireAuth, asyncRoute(async (req: Request, res: Response) => {
   const authReq = req as AuthenticatedRequest;
 
   if (!authReq.authUserId || !(await userCanAccessMatch(req.params.matchId, authReq.authUserId))) {
@@ -1492,9 +1610,9 @@ app.post('/api/messages/:matchId/read', requireAuth, async (req: Request, res: R
     type: 'messages:read',
     data: { readerId: authReq.authUserId },
   });
-});
+}));
 
-app.post('/api/messages', requireAuth, messageLimiter, async (req: Request, res: Response) => {
+app.post('/api/messages', requireAuth, messageLimiter, asyncRoute(async (req: Request, res: Response) => {
   const { matchId, text } = req.body;
 
   if (
@@ -1536,9 +1654,9 @@ app.post('/api/messages', requireAuth, messageLimiter, async (req: Request, res:
   const payload = toMessageResponse(message);
   broadcastChat(String(matchId), { type: 'messages:new', data: payload });
   res.status(201).json(payload);
-});
+}));
 
-app.delete('/api/messages/:messageId', requireAuth, async (req: Request, res: Response) => {
+app.delete('/api/messages/:messageId', requireAuth, asyncRoute(async (req: Request, res: Response) => {
   const authReq = req as AuthenticatedRequest;
   if (!authReq.authUserId) {
     return sendError(res, 401, 'Authentication required', 'AUTH_REQUIRED');
@@ -1559,10 +1677,10 @@ app.delete('/api/messages/:messageId', requireAuth, async (req: Request, res: Re
   );
 
   res.json({ deleted: true });
-});
+}));
 
 // === Events Routes ===
-app.get('/api/events', requireAuth, async (req: Request, res: Response) => {
+app.get('/api/events', requireAuth, asyncRoute(async (req: Request, res: Response) => {
   const currentUser = await getCurrentUser(req);
   if (!currentUser) {
     return sendError(res, 404, 'User not found', 'USER_NOT_FOUND');
@@ -1572,9 +1690,9 @@ app.get('/api/events', requireAuth, async (req: Request, res: Response) => {
   res.json({
     data: events.map((event) => toEventResponse(event, currentUser?._id.toString())),
   });
-});
+}));
 
-app.get('/api/events/:id', requireAuth, async (req: Request, res: Response) => {
+app.get('/api/events/:id', requireAuth, asyncRoute(async (req: Request, res: Response) => {
   const currentUser = await getCurrentUser(req);
   if (!currentUser) {
     return sendError(res, 404, 'User not found', 'USER_NOT_FOUND');
@@ -1586,9 +1704,9 @@ app.get('/api/events/:id', requireAuth, async (req: Request, res: Response) => {
   }
 
   res.json(toEventResponse(event, currentUser?._id.toString()));
-});
+}));
 
-app.post('/api/events/:id/register', requireAuth, async (req: Request, res: Response) => {
+app.post('/api/events/:id/register', requireAuth, asyncRoute(async (req: Request, res: Response) => {
   const authReq = req as AuthenticatedRequest;
   const event = await EventModel.findById(req.params.id);
 
@@ -1602,9 +1720,9 @@ app.post('/api/events/:id/register', requireAuth, async (req: Request, res: Resp
   }
 
   res.json(toEventResponse(event, authReq.authUserId));
-});
+}));
 
-app.delete('/api/events/:id/register', requireAuth, async (req: Request, res: Response) => {
+app.delete('/api/events/:id/register', requireAuth, asyncRoute(async (req: Request, res: Response) => {
   const authReq = req as AuthenticatedRequest;
   const event = await EventModel.findById(req.params.id);
 
@@ -1616,7 +1734,7 @@ app.delete('/api/events/:id/register', requireAuth, async (req: Request, res: Re
   await event.save();
 
   res.json(toEventResponse(event, authReq.authUserId));
-});
+}));
 
 // === Error Handling ===
 app.use((req: Request, res: Response) => {
@@ -1653,7 +1771,7 @@ async function startServer(): Promise<void> {
 
   const server = http.createServer(app);
 
-  const wss = new WebSocketServer({ server, path: '/ws/calls', maxPayload: 64 * 1024 });
+  const wss = new WebSocketServer({ noServer: true, maxPayload: 64 * 1024 });
 
   wss.on('connection', (ws: WebSocket, req: http.IncomingMessage) => {
     const origin = req.headers.origin;
@@ -1782,7 +1900,22 @@ async function startServer(): Promise<void> {
     });
   });
 
-  const chatWss = new WebSocketServer({ server, path: '/ws/chat', maxPayload: 64 * 1024 });
+  const chatWss = new WebSocketServer({ noServer: true, maxPayload: 64 * 1024 });
+
+  server.on('upgrade', (request, socket, head) => {
+    void (async () => {
+      const url = new URL(request.url ?? '/', 'http://localhost');
+      const target = url.pathname === '/ws/chat' ? chatWss : url.pathname === '/ws/calls' ? wss : null;
+      const token = url.searchParams.get('token') ?? '';
+      const auth = verifyAuthToken(token);
+      if (!target || !auth || (request.headers.origin && !isOriginAllowed(request.headers.origin))) { socket.destroy(); return; }
+      const payload = jwt.decode(token);
+      const version = payload && typeof payload === 'object' && typeof payload.version === 'string' ? payload.version : '';
+      const user = await UserModel.findById(auth.userId).select('authVersion').lean();
+      if (!user || (user.authVersion ?? '') !== version) { socket.destroy(); return; }
+      target.handleUpgrade(request, socket, head, ws => target.emit('connection', ws, request));
+    })().catch(() => socket.destroy());
+  });
 
   chatWss.on('connection', (ws: WebSocket, req: http.IncomingMessage) => {
     const origin = req.headers.origin;
@@ -1884,7 +2017,7 @@ async function startServer(): Promise<void> {
 
   server.listen(PORT, () => {
     console.log(`
-🚀 TanzMatch Backend Server
+🚀 Clever Match Backend Server
 📍 http://localhost:${PORT}
 ✓ API ready at http://localhost:${PORT}/api
 ✓ Health check at http://localhost:${PORT}/api/health

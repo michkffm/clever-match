@@ -1,3 +1,4 @@
+import { useTranslation } from "../utils/translations";
 import React, { useMemo } from 'react';
 import type { DanceCategory } from '../types';
 import { DANCES } from '../types';
@@ -23,6 +24,7 @@ export const TanzCheckboxGrid: React.FC<TanzCheckboxGridProps> = ({
   customDances = [],
   onCustomDancesChange,
 }) => {
+  const t = useTranslation();
   // Group dances by category
   const dancesByCategory = useMemo(() => {
     const grouped: Record<DanceCategory, typeof DANCES> = {
@@ -114,11 +116,11 @@ export const TanzCheckboxGrid: React.FC<TanzCheckboxGridProps> = ({
 
       {/* Custom Dance Input */}
       <div className="custom-dance-section">
-        <h3 className="category-title">Andere Tänze</h3>
+        <h3 className="category-title">{t("Andere Tänze")}</h3>
         <div className="custom-dance-input-wrapper">
           <input
             type="text"
-            placeholder="Zusätzlicher Tanz (z.B. Flamenco, Contemporary)"
+            placeholder={t("Zusätzlicher Tanz (z.B. Flamenco, Contemporary)")}
             value={customDances[0] || ''}
             onChange={handleCustomDanceChange}
             className="custom-dance-input"

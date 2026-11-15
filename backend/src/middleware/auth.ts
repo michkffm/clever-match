@@ -1,3 +1,4 @@
+import { UserModel } from '../models/User.js';
 import type { NextFunction, Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
@@ -8,12 +9,14 @@ const REFRESH_TOKEN_EXPIRES_IN = process.env.REFRESH_TOKEN_EXPIRES_IN || '30d';
 
 export interface AuthenticatedRequest extends Request {
   authUserId?: string;
+  authVersion?: string;
 }
 
 interface TokenPayload {
   sub: string;
   email: string;
   role?: string;
+  version?: string;
 }
 
 type TokenUse = 'access' | 'refresh';
@@ -50,7 +53,7 @@ export function signAuthToken(payload: TokenPayload): string {
     expiresIn: JWT_EXPIRES_IN as jwt.SignOptions['expiresIn'],
   };
 
-  return jwt.sign({ email: payload.email, role: payload.role, tokenUse: 'access' }, JWT_SECRET, {
+  return jwt.sign({ email: payload.email, role: payload.role, version: payload.version ?? '', tokenUse: 'access' }, JWT_SECRET, {
     ...signOptions,
   });
 }
@@ -110,6 +113,7 @@ export function authenticateRequest(
       | null;
     req.authUserId =
       decoded?.tokenUse === 'access' && typeof decoded.sub === 'string' ? decoded.sub : undefined;
+    req.authVersion = typeof decoded?.version === 'string' ? decoded.version : '';
   } catch {
     req.authUserId = undefined;
   }
@@ -117,15 +121,22 @@ export function authenticateRequest(
   next();
 }
 
-export function requireAuth(
+export async function requireAuth(
   req: AuthenticatedRequest,
   res: Response,
   next: NextFunction
-): void {
+): Promise<void> {
   if (!req.authUserId) {
     res.status(401).json({ error: 'Authentication required', code: 'AUTH_REQUIRED' });
     return;
   }
 
-  next();
+  try {
+    const user = await UserModel.findById(req.authUserId).select('authVersion').lean();
+    if (!user || (user.authVersion ?? '') !== (req.authVersion ?? '')) {
+      res.status(401).json({ error: 'Session expired', code: 'AUTH_REQUIRED' });
+      return;
+    }
+    next();
+  } catch (error) { next(error); }
 }

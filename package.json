@@ -1,6 +1,6 @@
 {
-  "name": "tanzmatch",
-  "description": "TanzMatch - Find Your Dance Partner",
+  "name": "clever-match",
+  "description": "Clever Match - Find Your Dance Partner",
   "private": false,
   "version": "0.0.1",
   "license": "MIT",
@@ -18,7 +18,8 @@
     "lint": "npm run lint -w frontend && npm run lint -w backend",
     "type-check": "npm run type-check -w frontend && npm run type-check -w backend",
     "start:backend": "npm run start -w backend",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:api": "npm run build:backend && node backend/test/api.integration.cjs"
   },
   "engines": {
     "node": "22.x",
@@ -26,7 +27,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/michkffm/tanzmatch.git"
+    "url": "https://github.com/michkffm/clever-match.git"
   },
   "keywords": [
     "dating",
@@ -35,6 +36,13 @@
     "social"
   ],
   "devDependencies": {
-    "@playwright/test": "^1.55.0"
+    "@playwright/test": "^1.55.0",
+    "mongodb-memory-server": "^11.3.0"
+  },
+  "overrides": {
+    "qs": "^6.17.1",
+    "@typescript-eslint/typescript-estree": {
+      "minimatch": "^11.0.8"
+    }
   }
 }

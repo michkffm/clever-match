@@ -1,3 +1,4 @@
+import { useTranslation } from "../utils/translations";
 import React from 'react';
 import { MapPin, Calendar, Users } from 'lucide-react';
 import './EventCard.css';
@@ -30,6 +31,7 @@ export const EventCard: React.FC<EventCardProps> = ({
   onViewDetails,
   highlight = false,
 }) => {
+  const t = useTranslation();
   const isFullyBooked = event.registered >= event.capacity;
   const dateStr = new Date(event.date).toLocaleDateString('de-DE', {
     weekday: 'short',
@@ -62,7 +64,7 @@ export const EventCard: React.FC<EventCardProps> = ({
             <h3 className="event-card-title">{event.title}</h3>
             <span className="event-card-style">{event.style}</span>
           </div>
-          {isFullyBooked && <div className="event-card-badge">Ausgebucht</div>}
+          {isFullyBooked && <div className="event-card-badge">{t("Ausgebucht")}</div>}
         </div>
 
         {/* Info Grid */}
@@ -71,7 +73,7 @@ export const EventCard: React.FC<EventCardProps> = ({
           <div className="event-card-info-item">
             <Calendar size={16} />
             <div>
-              <span className="info-label">Datum</span>
+              <span className="info-label">{t("Datum")}</span>
               <span className="info-value">{dateStr} • {event.time} Uhr</span>
             </div>
           </div>
@@ -80,7 +82,7 @@ export const EventCard: React.FC<EventCardProps> = ({
           <div className="event-card-info-item">
             <MapPin size={16} />
             <div>
-              <span className="info-label">Ort</span>
+              <span className="info-label">{t("Ort")}</span>
               <span className="info-value">{event.location}</span>
             </div>
           </div>
@@ -89,7 +91,7 @@ export const EventCard: React.FC<EventCardProps> = ({
           <div className="event-card-info-item">
             <Users size={16} />
             <div>
-              <span className="info-label">Plätze</span>
+              <span className="info-label">{t("Plätze")}</span>
               <span className="info-value">
                 {event.registered}/{event.capacity}
               </span>
@@ -117,7 +119,7 @@ export const EventCard: React.FC<EventCardProps> = ({
               className="btn-primary event-btn"
               disabled={isFullyBooked}
             >
-              {isFullyBooked ? 'Ausgebucht' : 'Anmelden'}
+              {isFullyBooked ? t("Ausgebucht") : t("Anmelden")}
             </button>
           </div>
         </div>

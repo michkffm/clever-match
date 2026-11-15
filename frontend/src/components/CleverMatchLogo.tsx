@@ -5,7 +5,7 @@ interface LogoProps {
   showText?: boolean;
 }
 
-export const TanzMatchLogo: React.FC<LogoProps> = ({ size = 'medium', showText = true }) => {
+export const CleverMatchLogo: React.FC<LogoProps> = ({ size = 'medium', showText = true }) => {
   const sizes = {
     small: { width: 56, height: 56 },
     medium: { width: 84, height: 84 },
@@ -15,9 +15,10 @@ export const TanzMatchLogo: React.FC<LogoProps> = ({ size = 'medium', showText =
   const { width, height } = sizes[size];
 
   return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
     <img
-      src="/tanzmatch.svg"
-      alt="TanzMatch"
+      src="/clever-match.svg"
+      alt="Clever Match"
       width={width}
       height={height}
       style={{
@@ -28,7 +29,9 @@ export const TanzMatchLogo: React.FC<LogoProps> = ({ size = 'medium', showText =
       }}
       aria-hidden={showText ? undefined : true}
     />
+    {showText && <span style={{ fontSize: size === 'small' ? 18 : 24, fontWeight: 700, color: 'var(--color-text)' }}>Clever Match</span>}
+    </div>
   );
 };
 
-export default TanzMatchLogo;
+export default CleverMatchLogo;

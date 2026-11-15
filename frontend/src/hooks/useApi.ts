@@ -5,11 +5,11 @@ import { useCallback, useEffect, useState } from 'react';
 import { ApiError, retryWithBackoff, createApiError, formatErrorLog } from '../utils/errors';
 import { useAppStore } from '../store/appStore';
 
-interface UseApiOptions {
+interface UseApiOptions<T> {
   autoFetch?: boolean;
   retryOnError?: boolean;
   maxRetries?: number;
-  onSuccess?: (data: any) => void;
+  onSuccess?: (data: T | undefined) => void;
   onError?: (error: ApiError) => void;
 }
 
@@ -30,8 +30,8 @@ interface UseApiState<T> {
  * );
  */
 export function useApi<T>(
-  apiFn: () => Promise<any>,
-  options: UseApiOptions = {}
+  apiFn: () => Promise<{ data?: T; error?: string; status: number }>,
+  options: UseApiOptions<T> = {}
 ): UseApiState<T> {
   const {
     autoFetch = true,
@@ -80,7 +80,7 @@ export function useApi<T>(
         return;
       }
 
-      setState((prev) => ({ ...prev, data: result.data, isLoading: false }));
+      setState((prev) => ({ ...prev, data: result.data ?? null, isLoading: false }));
       onSuccess?.(result.data);
     } catch (err) {
       const error =
@@ -99,7 +99,8 @@ export function useApi<T>(
   // Auto-fetch on mount
   useEffect(() => {
     if (autoFetch) {
-      fetch();
+      const task = window.setTimeout(() => void fetch(), 0);
+      return () => window.clearTimeout(task);
     }
   }, [autoFetch, fetch]);
 
@@ -122,9 +123,9 @@ export function useApi<T>(
  * // Then trigger:
  * await execute("user@example.com", "password");
  */
-export function useLazyApi<T, Args extends any[]>(
-  apiFn: (...args: Args) => Promise<any>,
-  options: UseApiOptions = {}
+export function useLazyApi<T, Args extends unknown[]>(
+  apiFn: (...args: Args) => Promise<{ data?: T; error?: string; status: number }>,
+  options: UseApiOptions<T> = {}
 ) {
   const {
     retryOnError = true,
@@ -164,10 +165,10 @@ export function useLazyApi<T, Args extends any[]>(
           return null;
         }
 
-        setData(result.data);
+        setData(result.data ?? null);
         onSuccess?.(result.data);
         setIsLoading(false);
-        return result.data;
+        return result.data ?? null;
       } catch (err) {
         const apiError =
           err instanceof ApiError

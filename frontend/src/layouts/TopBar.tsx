@@ -1,8 +1,9 @@
+import { useTranslation } from "../utils/translations";
 import React from 'react';
 import { Search, Bell, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import TanzMatchLogo from '../components/TanzMatchLogo';
-import { useAuth } from '../contexts/AuthContext';
+import CleverMatchLogo from '../components/CleverMatchLogo';
+import { useAuth } from '../hooks/useAuth';
 import { handleImageError, normalizeImageUrl } from '../utils/imageFallback';
 import { useLanguage } from '../utils/i18n';
 import './TopBar.css';
@@ -22,6 +23,7 @@ export const TopBar: React.FC<TopBarProps> = ({
   onAvatarClick,
   avatarUrl,
 }) => {
+  const t = useTranslation();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const language = useLanguage();
@@ -67,9 +69,9 @@ export const TopBar: React.FC<TopBarProps> = ({
           type="button"
           className="topbar-logo-btn"
           onClick={handleLogoClick}
-          aria-label="Zur Startseite"
+          aria-label={t("Zur Startseite")}
         >
-          <TanzMatchLogo size="small" showText={true} />
+          <CleverMatchLogo size="small" showText={true} />
         </button>
       </div>
 

@@ -1,12 +1,12 @@
-# TanzMatch
+# Clever Match
 
 [Deutsch](README.md) | **English**
 
 [Live app](https://tanzmatch-web.onrender.com/)
 
-TanzMatch is a full-stack app for finding dance partners through profiles, matching, and chat. The frontend and backend run on Render, with data stored in MongoDB Atlas.
+Clever Match is a full-stack app for finding dance partners through profiles, matching, and chat. The frontend and backend run on Render, with data stored in MongoDB Atlas.
 
-![TanzMatch – desktop sign-in page](docs/tanzmatch-desktop.png)
+![Clever Match – desktop sign-in page](docs/clever-match-desktop.png)
 
 ## Features
 
@@ -20,21 +20,21 @@ TanzMatch is a full-stack app for finding dance partners through profiles, match
 
 ## Mobile view
 
-<img src="docs/tanzmatch-mobile.png" alt="TanzMatch – sign-in page on a smartphone" width="390">
+<img src="docs/clever-match-mobile.png" alt="Clever Match – sign-in page on a smartphone" width="390">
 
-The screenshots show the published German sign-in page at the time they were captured. The interface continues to evolve.
+The screenshots show the current sign-in page: German in light mode and English in dark mode.
 
 ## Development status
 
-TanzMatch remains free. Password reset through Resend and notification improvements are still in progress. There are no paid subscriptions. Some advanced screens still contain incomplete features or translations. Existing frontend lint issues are being addressed separately. A complete WCAG conformance assessment has not been performed.
+Clever Match remains free. Password reset through Resend, saved notification preferences, and protected chats are implemented. Email delivery requires the service variables described below. A complete WCAG conformance assessment has not been performed.
 
 ## Run locally
 
 Requirements: Node.js 22, npm, and an accessible MongoDB database.
 
 ```bash
-git clone https://github.com/michkffm/tanzmatch.git
-cd tanzmatch
+git clone https://github.com/michkffm/clever-match.git
+cd clever-match
 npm ci
 cp backend/.env.example backend/.env
 cp frontend/.env.example frontend/.env.local
@@ -51,12 +51,14 @@ Frontend: `http://localhost:5173` · API: `http://localhost:5000/api`
 ```bash
 npm run type-check
 npm run lint
+npm run test:api
 npm run test:e2e
+npm audit
 npm run build
 npm run start:backend
 ```
 
-The production build compiles the shared types first, followed by the frontend and backend. Browser checks start a local frontend test server. `npm run lint` currently reports existing frontend issues.
+The production build compiles the shared types first, followed by the frontend and backend. Browser checks start a local frontend test server. API tests use a temporary local MongoDB without production data; the MongoDB test binary is downloaded on the first run.
 
 ## Technologies and structure
 
@@ -80,7 +82,7 @@ Required variables are documented without secret values in `backend/.env.example
 - `CLOUDINARY_URL`: required for profile photo uploads
 - `ENABLE_DEMO_SEED`: only for explicitly enabled local demo data
 
-Password reset stays disabled until an email delivery service has been configured securely. Secrets are stored only locally or in the hosting service.
+Password reset requires `RESEND_API_KEY`, `MAIL_FROM` (a verified sender domain), and `APP_ORIGIN`. Secrets are stored only locally or in the hosting service.
 
 ## Security and privacy
 

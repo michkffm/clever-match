@@ -10,7 +10,7 @@ test('language, dark mode and text preferences remain available before login', a
   const before = await dark.getAttribute('aria-pressed');
   await dark.click();
   await expect(dark).toHaveAttribute('aria-pressed', before === 'true' ? 'false' : 'true');
-  await page.getByRole('button', { name: 'Larger text', exact: true }).click();
+  await page.getByRole('button', { name: 'Text size: Standard', exact: true }).click();
   await expect(page.locator('html')).toHaveClass(/large-text/);
   await page.reload();
   await expect(page.locator('html')).toHaveAttribute('lang', 'en');

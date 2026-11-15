@@ -68,7 +68,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
             {profile.firstName}, {profile.age}
           </h2>
           <p className="profile-meta">
-            {profile.height}cm • {profile.city}
+            {profile.height ? `${profile.height} cm · ` : ''}{profile.city}
           </p>
         </div>
 

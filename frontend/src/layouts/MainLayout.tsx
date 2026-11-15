@@ -3,7 +3,6 @@ import TopBar from './TopBar';
 import BottomTabs from './BottomTabs';
 import SearchOverlay from '../components/SearchOverlay';
 import { apiClient } from '../services/api';
-import { storageService } from '../services/storage';
 import './MainLayout.css';
 
 interface MainLayoutProps {
@@ -25,32 +24,14 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
   const [unreadNotifications, setUnreadNotifications] = useState(0);
 
   React.useEffect(() => {
+    let active = true;
     const loadUnread = async () => {
-      try {
-        const matchesResponse = await apiClient.getMatches();
-        const matchPayload = matchesResponse.data as { data?: { id: string; userId: string; createdAt: string }[] } | undefined;
-        const matches = matchPayload?.data || [];
-
-        const messageCounts = await Promise.all(
-          matches.map(async (match) => {
-            const messagesResponse = await apiClient.getMessages(match.id);
-            const messagePayload = messagesResponse.data as { data?: { senderId: string; read: boolean }[] } | undefined;
-            const messages = messagePayload?.data || [];
-            const currentUserId = storageService.getUser()?.id;
-            return messages.filter(
-              (message) => !message.read && message.senderId !== currentUserId
-            ).length;
-          })
-        );
-
-        const unread = messageCounts.reduce((sum, count) => sum + count, 0);
-        setUnreadNotifications(unread);
-      } catch {
-        setUnreadNotifications(0);
-      }
+      const response = await apiClient.getNotifications();
+      if (active && response.data) setUnreadNotifications(response.data.unreadMessages);
     };
-
     void loadUnread();
+    const interval = window.setInterval(() => { if (!document.hidden) void loadUnread(); }, 30000);
+    return () => { active = false; window.clearInterval(interval); };
   }, []);
 
   const handleSearchClick = () => {

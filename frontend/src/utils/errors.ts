@@ -134,7 +134,7 @@ export async function retryWithBackoff<T>(
  */
 export function createApiError(
   statusCode: number,
-  responseData?: any,
+  responseData?: { error?: string; message?: string },
   originalError?: Error
 ): ApiError {
   const message =

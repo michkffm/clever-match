@@ -1,3 +1,4 @@
+import { useTranslation } from "../utils/translations";
 import React from 'react';
 import { MessageCircle } from 'lucide-react';
 import { handleImageError, normalizeImageUrl } from '../utils/imageFallback';
@@ -19,6 +20,7 @@ interface MatchCardProps {
 }
 
 export const MatchCard: React.FC<MatchCardProps> = ({ match, onChatClick }) => {
+  const t = useTranslation();
   return (
     <div className="match-card">
       {/* Photo */}
@@ -43,7 +45,7 @@ export const MatchCard: React.FC<MatchCardProps> = ({ match, onChatClick }) => {
       <div className="match-info">
         <div className="match-header">
           <h3 className="match-name">{match.firstName}</h3>
-          <span className="match-status">Neuer Match!</span>
+          <span className="match-status">{t("Neuer Match!")}</span>
         </div>
 
         {/* Common Dances */}

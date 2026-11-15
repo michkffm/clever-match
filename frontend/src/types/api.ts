@@ -18,6 +18,14 @@ export interface AuthResponse {
 }
 
 export interface Profile extends User {
+  gender?: 'M' | 'W' | 'D' | 'other';
+  height?: number;
+  athleticism?: 'very-sporty' | 'sporty' | 'normal' | 'not-sporty';
+  figure?: 'slim' | 'normal' | 'curvy' | 'muscular';
+  calendar?: boolean[];
+  customDances?: string[];
+  danceLevels?: { danceId: string; level: 1 | 2 | 3 | 4 | 5 }[];
+
   bio?: string;
   interests?: string[];
   danceStyles?: string[];
@@ -34,6 +42,7 @@ export interface Profile extends User {
     distance?: number;
   };
   privateProfile?: boolean;
+  notificationPreferences?: { messages?: boolean; matches?: boolean; events?: boolean; likes?: boolean };
 }
 
 export interface PublicProfile {
@@ -89,7 +98,7 @@ export interface Event {
 export interface ApiError {
   message: string;
   code?: string;
-  details?: any;
+  details?: unknown;
 }
 
 // === Request Types ===
@@ -107,6 +116,14 @@ export interface RegisterRequest {
 }
 
 export interface UpdateProfileRequest {
+  gender?: 'M' | 'W' | 'D' | 'other';
+  height?: number;
+  athleticism?: 'very-sporty' | 'sporty' | 'normal' | 'not-sporty';
+  figure?: 'slim' | 'normal' | 'curvy' | 'muscular';
+  calendar?: boolean[];
+  customDances?: string[];
+  danceLevels?: { danceId: string; level: 1 | 2 | 3 | 4 | 5 }[];
+
   bio?: string;
   interests?: string[];
   danceStyles?: string[];
@@ -117,6 +134,7 @@ export interface UpdateProfileRequest {
     distance?: number;
   };
   privateProfile?: boolean;
+  notificationPreferences?: { messages?: boolean; matches?: boolean; events?: boolean; likes?: boolean };
 }
 
 export interface MatchRequest {

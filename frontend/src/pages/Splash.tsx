@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Check, ChevronRight, X } from 'lucide-react';
-import TanzMatchLogo from '../components/TanzMatchLogo';
+import CleverMatchLogo from '../components/CleverMatchLogo';
 import './Splash.css';
 
 interface SplashProps {
@@ -15,7 +15,7 @@ export const Splash: React.FC<SplashProps> = ({ onComplete }) => {
     {
       id: 0,
       backgroundColor: 'linear-gradient(135deg, #4CAF50 0%, #2196F3 100%)',
-      title: 'Willkommen bei TanzMatch!',
+      title: 'Willkommen bei Clever Match!',
       subtitle: 'Finde deinen perfekten Tanzpartner',
       showLogo: true,
     },
@@ -79,7 +79,7 @@ export const Splash: React.FC<SplashProps> = ({ onComplete }) => {
             <div className="slide-content">
               {slide.showLogo && (
                 <div className="slide-logo-large">
-                  <TanzMatchLogo size="large" showText={true} />
+                  <CleverMatchLogo size="large" showText={true} />
                 </div>
               )}
 

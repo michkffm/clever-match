@@ -3,8 +3,8 @@
 
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
-import TanzMatchLogo from './TanzMatchLogo';
+import { useAuth } from '../hooks/useAuth';
+import CleverMatchLogo from './CleverMatchLogo';
 import {
   Home,
   Heart,
@@ -43,7 +43,7 @@ const Navigation: React.FC = () => {
   ];
 
   const bottomItems = [
-    { path: '/premium', icon: Crown, label: 'Premium', id: 'premium' },
+    { path: '/premium', icon: Crown, label: language === 'en' ? 'Free features' : 'Kostenlose Funktionen', id: 'premium' },
     { path: '/settings', icon: Settings, label: 'Settings', id: 'settings' },
   ];
 
@@ -61,7 +61,7 @@ const Navigation: React.FC = () => {
         {/* Logo */}
         <div className="nav-header">
           <Link to="/" className="nav-logo">
-            <TanzMatchLogo size="small" showText={false} />
+            <CleverMatchLogo size="small" showText={false} />
           </Link>
         </div>
 

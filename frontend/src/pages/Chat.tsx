@@ -1,12 +1,12 @@
 import { useTranslation } from "../utils/translations";
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { Send, Phone, Video, Image, Smile, Trash2, UserX, PhoneOff } from 'lucide-react';
 import MainLayout from '../layouts/MainLayout';
 import { apiClient, createWebSocketUrl } from '../services/api';
 import { storageService } from '../services/storage';
 import { authService } from '../utils/auth';
-import { useNotification } from '../components/NotificationContainer';
+import { useNotification } from '../hooks/useNotification';
 import type { Match, Message, Profile } from '../types/api';
 import './Chat.css';
 
@@ -47,9 +47,9 @@ export const Chat: React.FC = () => {
   const wsRef = useRef<WebSocket | null>(null);
   const notify = useNotification();
 
-  const getCacheKey = (activeMatchId: string) => `chat_cache_${currentUserId}_${activeMatchId}`;
+  const getCacheKey = useCallback((activeMatchId: string) => `chat_cache_${currentUserId}_${activeMatchId}`, [currentUserId]);
 
-  const loadCachedMessages = (activeMatchId: string) => {
+  const loadCachedMessages = useCallback((activeMatchId: string) => {
     const cached = localStorage.getItem(getCacheKey(activeMatchId));
     if (!cached) return null;
     try {
@@ -66,9 +66,9 @@ export const Chat: React.FC = () => {
     } catch {
       return null;
     }
-  };
+  }, [getCacheKey]);
 
-  const saveCachedMessages = (activeMatchId: string, data: ChatMessage[]) => {
+  const saveCachedMessages = useCallback((activeMatchId: string, data: ChatMessage[]) => {
     const payload: CachedChatMessage[] = data.map((message) => ({
       id: message.id,
       sender: message.sender,
@@ -79,7 +79,7 @@ export const Chat: React.FC = () => {
       getCacheKey(activeMatchId),
       JSON.stringify({ savedAt: Date.now(), messages: payload })
     );
-  };
+  }, [getCacheKey]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -133,21 +133,21 @@ export const Chat: React.FC = () => {
       // Mark partner messages as read after loading chat
       await apiClient.markMessagesRead(activeMatchId);
 
-      if (partnerId) {
+      if (currentMatch) {
         const blockedResponse = await apiClient.getBlockedUsers();
         const blockedList = (blockedResponse.data as { data?: string[] } | undefined)?.data || [];
-        setIsBlocked(blockedList.includes(partnerId));
+        setIsBlocked(blockedList.includes(currentMatch.userId));
       }
     }
 
     void loadChat();
-  }, [currentUserId, matchId]);
+  }, [currentUserId, matchId, loadCachedMessages, saveCachedMessages]);
 
   useEffect(() => {
     if (!matchId) return;
     if (messages.length === 0) return;
     saveCachedMessages(matchId, messages);
-  }, [messages, matchId]);
+  }, [messages, matchId, saveCachedMessages]);
 
   useEffect(() => {
     return () => {
@@ -359,16 +359,16 @@ export const Chat: React.FC = () => {
 
     const response = await apiClient.deleteMessage(messageId);
     if (response.error) {
-      notify.error('Nachricht konnte nicht gelöscht werden.');
+      notify.error(t("Nachricht konnte nicht gelöscht werden."));
       return;
     }
     setMessages((currentMessages) => currentMessages.filter((msg) => msg.id !== messageId));
-    notify.success('Nachricht gelöscht.');
+    notify.success(t("Nachricht gelöscht."));
   };
 
   const handleBlockUser = async () => {
     if (!partnerId) {
-      notify.error('Kein Benutzer gefunden.');
+      notify.error(t("Kein Benutzer gefunden."));
       return;
     }
     const confirmBlock = window.confirm('Diesen Nutzer blockieren?');
@@ -377,16 +377,16 @@ export const Chat: React.FC = () => {
     }
     const response = await apiClient.blockUser(partnerId);
     if (response.error) {
-      notify.error('Blockieren fehlgeschlagen.');
+      notify.error(t("Blockieren fehlgeschlagen."));
       return;
     }
     setIsBlocked(true);
-    notify.success('Nutzer blockiert.');
+    notify.success(t("Nutzer blockiert."));
   };
 
   const handleUnblockUser = async () => {
     if (!partnerId) {
-      notify.error('Kein Benutzer gefunden.');
+      notify.error(t("Kein Benutzer gefunden."));
       return;
     }
     const confirmUnblock = window.confirm('Blockierung aufheben?');
@@ -395,11 +395,11 @@ export const Chat: React.FC = () => {
     }
     const response = await apiClient.unblockUser(partnerId);
     if (response.error) {
-      notify.error('Entblocken fehlgeschlagen.');
+      notify.error(t("Entblocken fehlgeschlagen."));
       return;
     }
     setIsBlocked(false);
-    notify.success('Nutzer entblockt.');
+    notify.success(t("Nutzer entblockt."));
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -559,7 +559,7 @@ export const Chat: React.FC = () => {
                 </span>
               </div>
               <button className="call-end-btn" onClick={() => void endCall()}>
-                {callStatus === 'connecting' ? 'Abbrechen' : t("Auflegen")}
+                {callStatus === 'connecting' ? t("Abbrechen") : t("Auflegen")}
               </button>
             </div>
 
@@ -575,7 +575,7 @@ export const Chat: React.FC = () => {
             </div>
             <div className="call-actions">
               <button className="call-end-btn call-end-primary" onClick={() => void endCall()}>
-                {callStatus === 'connecting' ? 'Abbrechen' : t("Auflegen")}
+                {callStatus === 'connecting' ? t("Abbrechen") : t("Auflegen")}
               </button>
             </div>
           </div>

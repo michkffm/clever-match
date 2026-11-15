@@ -178,10 +178,14 @@ class ApiClient {
     });
   }
 
+  async resetPassword(token: string, password: string) {
+    return this.request('/auth/reset-password', { method: 'POST', body: { token, password } });
+  }
+
   async requestPasswordReset(email: string) {
     return this.request('/auth/forgot-password', {
       method: 'POST',
-      body: { email },
+      body: { email, language: document.documentElement.lang },
     });
   }
 
@@ -236,6 +240,10 @@ class ApiClient {
   }
 
   // === Matches Endpoints ===
+  async getNotifications() {
+    return this.request<{ data: { id: string; type: 'message' | 'match' | 'like' | 'event'; createdAt: string; path: string }[]; unreadMessages: number }>('/notifications');
+  }
+
   async getMatches() {
     return this.request('/matches');
   }

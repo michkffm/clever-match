@@ -1,3 +1,4 @@
+import { useTranslation } from "../utils/translations";
 import React, { useState, useRef } from 'react';
 import type { PreviewProfile } from '../types';
 import ProfileCard from './ProfileCard';
@@ -18,33 +19,24 @@ export const SwipeContainer: React.FC<SwipeContainerProps> = ({
   onSuperlike,
   onFilterClick,
 }) => {
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const t = useTranslation();
+  const currentIndex = 0;
   const [touchStart, setTouchStart] = useState(0);
-  const [touchEnd, setTouchEnd] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const handleSwipeLeft = () => {
     onPass?.(profiles[currentIndex].id);
-    handleNext();
+
   };
 
   const handleSwipeRight = () => {
     onMatch?.(profiles[currentIndex].id);
-    handleNext();
+
   };
 
   const handleSuperlike = () => {
     onSuperlike?.(profiles[currentIndex].id);
-    handleNext();
-  };
 
-  const handleNext = () => {
-    if (currentIndex < profiles.length - 1) {
-      setCurrentIndex(currentIndex + 1);
-    } else {
-      // Reset or show "no more profiles" message
-      setCurrentIndex(0);
-    }
   };
 
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -52,11 +44,10 @@ export const SwipeContainer: React.FC<SwipeContainerProps> = ({
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
-    setTouchEnd(e.changedTouches[0].clientX);
-    handleSwipe();
+    handleSwipe(e.changedTouches[0].clientX);
   };
 
-  const handleSwipe = () => {
+  const handleSwipe = (touchEnd: number) => {
     if (!touchStart || !touchEnd) return;
 
     const distance = touchStart - touchEnd;
@@ -74,10 +65,10 @@ export const SwipeContainer: React.FC<SwipeContainerProps> = ({
     return (
       <div className="swipe-container-empty">
         <div className="empty-state">
-          <h2>Keine Profile gefunden 🤔</h2>
-          <p>Versuche, deine Filter anzupassen</p>
+          <h2>{t("Keine Profile gefunden 🤔")}</h2>
+          <p>{t("Versuche, deine Filter anzupassen")}</p>
           <button className="btn-primary" onClick={onFilterClick}>
-            Filter ändern
+            {t("Filter ändern")}
           </button>
         </div>
       </div>

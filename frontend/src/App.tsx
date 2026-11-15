@@ -1,3 +1,5 @@
+import Privacy from './pages/Privacy'
+import ResetPassword from './pages/ResetPassword'
 import { DisplayControls } from './components/DisplayControls'
 import { useLanguage } from './utils/i18n'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
@@ -27,6 +29,8 @@ import Notifications from './pages/Notifications'
 function AppRoutes() {
   return (
     <Routes>
+      <Route path="/privacy" element={<Privacy />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
       {/* Public Routes */}
       <Route
         path="/login"

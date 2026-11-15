@@ -9,7 +9,7 @@ import {
   Shield,
 } from 'lucide-react';
 import MainLayout from '../layouts/MainLayout';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { useAppStore } from '../store/appStore';
 import { apiClient } from '../services/api';
@@ -41,12 +41,13 @@ export const Settings: React.FC = () => {
   useEffect(() => {
     let cancelled = false;
     void apiClient.getProfile().then((response) => {
-      const profile = response.data as { privateProfile?: boolean } | undefined;
+      const profile = response.data as { privateProfile?: boolean; notificationPreferences?: Partial<typeof notifications> } | undefined;
       if (!cancelled && response.error) {
         setPrivacyError('Die Datenschutzeinstellung konnte nicht geladen werden.');
         return;
       }
       if (!cancelled && profile) {
+        setNotifications(current => ({ ...current, ...profile.notificationPreferences }));
         setPreferences((current) => ({
           ...current,
           privateProfile: profile.privateProfile ?? false,
@@ -64,7 +65,11 @@ export const Settings: React.FC = () => {
   ) => {
     if (category === 'notifications') {
       if (key === 'privateProfile') return;
-      setNotifications((current) => ({ ...current, [key]: !current[key] }));
+      const next = { ...notifications, [key]: !notifications[key] };
+      const response = await apiClient.updateProfile({ notificationPreferences: next });
+      if (response.error) { setPrivacyError(language === 'en' ? 'Could not save notification preferences.' : 'Benachrichtigungseinstellungen konnten nicht gespeichert werden.'); return; }
+      setNotifications(next);
+      setPrivacyError(null);
     } else {
       if (key !== 'privateProfile') return;
       const privateProfile = !preferences.privateProfile;
@@ -138,8 +143,8 @@ export const Settings: React.FC = () => {
           guestLogout: 'Exit guest mode',
         },
         footer: {
-          version: 'TanzMatch v1.0.0',
-          copyright: '© 2026 TanzMatch. All rights reserved.',
+          version: 'Clever Match v1.0.0',
+          copyright: '© 2026 Clever Match. All rights reserved.',
         },
       }
     : {
@@ -181,8 +186,8 @@ export const Settings: React.FC = () => {
           guestLogout: 'Gastmodus beenden',
         },
         footer: {
-          version: 'TanzMatch v1.0.0',
-          copyright: '© 2026 TanzMatch. Alle Rechte vorbehalten.',
+          version: 'Clever Match v1.0.0',
+          copyright: '© 2026 Clever Match. Alle Rechte vorbehalten.',
         },
       };
 
@@ -206,6 +211,7 @@ export const Settings: React.FC = () => {
               <label className="toggle-label">
                 <input
                   type="checkbox"
+                  aria-label={text.notifications.messages}
                   checked={notifications.messages}
                   onChange={() => handleToggle('notifications', 'messages')}
                   className="toggle-input"
@@ -224,6 +230,7 @@ export const Settings: React.FC = () => {
               <label className="toggle-label">
                 <input
                   type="checkbox"
+                  aria-label={text.notifications.matches}
                   checked={notifications.matches}
                   onChange={() => handleToggle('notifications', 'matches')}
                   className="toggle-input"
@@ -242,6 +249,7 @@ export const Settings: React.FC = () => {
               <label className="toggle-label">
                 <input
                   type="checkbox"
+                  aria-label={text.notifications.events}
                   checked={notifications.events}
                   onChange={() => handleToggle('notifications', 'events')}
                   className="toggle-input"
@@ -260,6 +268,7 @@ export const Settings: React.FC = () => {
               <label className="toggle-label">
                 <input
                   type="checkbox"
+                  aria-label={text.notifications.likes}
                   checked={notifications.likes}
                   onChange={() => handleToggle('notifications', 'likes')}
                   className="toggle-input"
@@ -288,6 +297,7 @@ export const Settings: React.FC = () => {
               <label className="toggle-label">
                 <input
                   type="checkbox"
+                  aria-label={text.privacy.privateProfile}
                   checked={preferences.privateProfile}
                   onChange={() => handleToggle('preferences', 'privateProfile')}
                   className="toggle-input"
@@ -296,7 +306,11 @@ export const Settings: React.FC = () => {
               </label>
             </div>
 
-            <button className="settings-item-btn">
+            <button className="settings-item-btn" onClick={async () => {
+              if (!user?.email || isGuestAccount) { setPrivacyError(language === 'en' ? 'Sign in with a registered account first.' : 'Melde dich zuerst mit einem registrierten Konto an.'); return; }
+              const result = await apiClient.requestPasswordReset(user.email);
+              setPrivacyError(result.error ? (language === 'en' ? 'Reset email could not be requested.' : 'Reset-E-Mail konnte nicht angefordert werden.') : (language === 'en' ? 'If the account exists, a reset email will be sent.' : 'Falls das Konto existiert, erhältst du eine Reset-E-Mail.'));
+            }}>
               <div className="settings-item-info">
                 <span className="settings-item-label">{text.privacy.changePassword}</span>
                 <span className="settings-item-subtitle">
@@ -306,7 +320,7 @@ export const Settings: React.FC = () => {
               <ChevronRight size={20} />
             </button>
 
-            <button className="settings-item-btn">
+            <button className="settings-item-btn" onClick={() => navigate('/privacy')}>
               <div className="settings-item-info">
                 <span className="settings-item-label">{text.privacy.privacyPolicy}</span>
                 <span className="settings-item-subtitle">
@@ -345,6 +359,7 @@ export const Settings: React.FC = () => {
               <label className="toggle-label">
                 <input
                   type="checkbox"
+                  aria-label={text.preferences.darkMode}
                   checked={isDarkMode}
                   onChange={() => setDarkMode(!isDarkMode)}
                   className="toggle-input"
@@ -370,15 +385,8 @@ export const Settings: React.FC = () => {
                 {text.account.loginNow}
               </button>
             )}
-            <button className="settings-item-btn danger">
-              <div className="settings-item-info">
-                <span className="settings-item-label">{text.account.delete}</span>
-                <span className="settings-item-subtitle">
-                  {text.account.deleteSubtitle}
-                </span>
-              </div>
-              <ChevronRight size={20} />
-            </button>
+            <p>{language === 'en' ? 'To request deletion of your account and stored data, contact the project owner through the portfolio contact form.' : 'Für die Löschung deines Kontos und gespeicherter Daten kontaktiere den Projektbetreiber über das Portfolio-Kontaktformular.'}</p>
+            <a href="https://michael-koch-portfolio.vercel.app/contact.html" target="_blank" rel="noopener noreferrer">{language === 'en' ? 'Request account deletion' : 'Kontolöschung anfragen'}</a>
 
             <button
               onClick={handleLogout}

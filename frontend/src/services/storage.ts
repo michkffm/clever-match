@@ -1,3 +1,5 @@
+import type { User } from '../types/api';
+type Preferences = { language?: 'de' | 'en'; privateProfile?: boolean; notifications?: { messages: boolean; matches: boolean; events: boolean; likes: boolean } };
 // === Storage Service ===
 // Local Storage Management für Auth Token, User Data, etc.
 
@@ -16,15 +18,17 @@ class StorageService {
   }
 
   // === User Data ===
-  setUser(user: any) {
+  setUser(user: User) {
     localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
   }
 
-  getUser() {
+  getUser(): User | null {
     const user = localStorage.getItem(STORAGE_KEYS.USER);
     if (!user) return null;
     try {
-      return JSON.parse(user);
+      const parsed: unknown = JSON.parse(user);
+      if (!parsed || typeof parsed !== "object" || !("id" in parsed) || typeof parsed.id !== "string") return null;
+      return parsed as User;
     } catch {
       this.clearUser();
       return null;
@@ -36,13 +40,13 @@ class StorageService {
   }
 
   // === Preferences ===
-  setPreferences(preferences: any) {
+  setPreferences(preferences: Preferences) {
     localStorage.setItem(STORAGE_KEYS.PREFERENCES, JSON.stringify(preferences));
   }
 
-  getPreferences() {
+  getPreferences(): Preferences {
     const prefs = localStorage.getItem(STORAGE_KEYS.PREFERENCES);
-    return prefs ? JSON.parse(prefs) : {};
+    try { return prefs ? JSON.parse(prefs) as Preferences : {}; } catch { return {}; }
   }
 
   // === Theme ===
@@ -51,7 +55,7 @@ class StorageService {
   }
 
   getTheme(): 'light' | 'dark' {
-    return (localStorage.getItem(STORAGE_KEYS.THEME) as any) || 'light';
+    return localStorage.getItem(STORAGE_KEYS.THEME) === 'dark' ? 'dark' : 'light';
   }
 
   // === Session ===
@@ -77,7 +81,7 @@ class StorageService {
 
   // === Debug ===
   getAll() {
-    const data: Record<string, any> = {};
+    const data: Record<string, unknown> = {};
     Object.values(STORAGE_KEYS).forEach((key) => {
       const value = localStorage.getItem(key);
       data[key] = value ? (value.startsWith('{') ? JSON.parse(value) : value) : null;

@@ -1,6 +1,6 @@
 {
-  "name": "TanzMatch",
-  "short_name": "TanzMatch",
+  "name": "Clever Match",
+  "short_name": "Clever Match",
   "description": "Tanzpartner-Boerse als Progressive Web App",
   "start_url": "/",
   "display": "standalone",
@@ -8,12 +8,12 @@
   "theme_color": "#4CAF50",
   "icons": [
     {
-      "src": "/tanzmatch.svg",
+      "src": "/clever-match.svg",
       "sizes": "192x192",
       "type": "image/svg+xml"
     },
     {
-      "src": "/tanzmatch.svg",
+      "src": "/clever-match.svg",
       "sizes": "512x512",
       "type": "image/svg+xml"
     }

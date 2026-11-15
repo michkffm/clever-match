@@ -1,168 +1,56 @@
-import { useTranslation } from "../utils/translations";
-import React, { useEffect, useState } from 'react';
-import { MapPin, List, Filter } from 'lucide-react';
-import { useLocation } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
 import MainLayout from '../layouts/MainLayout';
-import EventCard from '../components/EventCard';
-import type { EventCardData } from '../components/EventCard';
 import { apiClient } from '../services/api';
 import type { Event } from '../types/api';
+import { useLanguage } from '../utils/i18n';
 import './Events.css';
 
-function mapEventToCard(event: Event): EventCardData {
-  return {
-    id: event.id,
-    title: event.title,
-    style: event.danceStyle ? event.danceStyle.toUpperCase() : 'MIXED',
-    date: new Date(event.date),
-    time: event.time || '20:00',
-    location: event.location,
-    coords: { lat: 52.52, lng: 13.405 },
-    description: event.description || 'Tanzevent in deiner Nähe',
-    capacity: 150,
-    registered: event.attendees || 0,
-    price: 0,
-  };
+export default function Events() {
+ const en = useLanguage() === 'en';
+ const [events, setEvents] = useState<Event[]>([]);
+ const [query, setQuery] = useState('');
+ const [loading, setLoading] = useState(true);
+ const [error, setError] = useState('');
+ const [selected, setSelected] = useState<Event | null>(null);
+ const [busy, setBusy] = useState<string | null>(null);
+ const dialog = useRef<HTMLDialogElement>(null);
+ useEffect(() => {
+  let active = true;
+  void apiClient.getEvents().then(response => {
+   if (!active) return;
+   if (response.error) setError(en ? 'Events could not be loaded.' : 'Events konnten nicht geladen werden.');
+   else setEvents((response.data as { data?: Event[] } | undefined)?.data ?? []);
+   setLoading(false);
+  });
+  return () => { active = false; };
+ }, [en]);
+ useEffect(() => {
+  if (selected && !dialog.current?.open) dialog.current?.showModal();
+  if (!selected && dialog.current?.open) dialog.current.close();
+ }, [selected]);
+ const register = async (event: Event) => {
+  setBusy(event.id);
+  const response = await (event.registered ? apiClient.unregisterEvent(event.id) : apiClient.registerEvent(event.id));
+  setBusy(null);
+  if (response.error) { setError(en ? 'Registration could not be updated.' : 'Anmeldung konnte nicht aktualisiert werden.'); return; }
+  const updated = response.data as Event;
+  setEvents(current => current.map(item => item.id === event.id ? updated : item));
+  setError('');
+ };
+ return <MainLayout><section className="events-container">
+  <h1>{en ? 'Dance events' : 'Tanzevents'}</h1>
+  <label htmlFor="event-search">{en ? 'Search events' : 'Events suchen'}</label>
+  <input id="event-search" type="search" value={query} onChange={e=>setQuery(e.target.value)} />
+  {loading && <p role="status">{en ? 'Loading…' : 'Wird geladen…'}</p>}
+  {error && <p role="alert">{error}</p>}
+  {!loading && !events.length && <p>{en ? 'No events available.' : 'Keine Events verfügbar.'}</p>}
+  <div className="events-list">{events.filter(event=>(event.title+' '+event.location+' '+(event.danceStyle??'')).toLocaleLowerCase().includes(query.toLocaleLowerCase())).map(event=><article className="event-card" key={event.id}>
+   <div className="event-card-content"><h2>{event.title}</h2><p>{event.location}</p><time dateTime={event.date}>{new Date(event.date).toLocaleDateString(en ? 'en-GB' : 'de-DE')}{event.time ? ` · ${event.time}` : ''}</time>
+   <p>{event.description}</p><div className="event-card-buttons"><button onClick={()=>setSelected(event)}>{en ? 'Details' : 'Details'}</button><button disabled={busy===event.id} onClick={()=>void register(event)}>{event.registered ? (en ? 'Cancel registration' : 'Anmeldung zurücknehmen') : (en ? 'Register for event' : 'Zum Event anmelden')}</button></div></div>
+  </article>)}</div>
+  <dialog ref={dialog} onClose={()=>setSelected(null)} onCancel={()=>setSelected(null)} aria-labelledby="event-title">
+   <h2 id="event-title">{selected?.title}</h2><p>{selected?.description}</p><p>{selected?.location}</p><p>{selected?.danceStyle}</p><p>{en ? 'Organizer' : 'Veranstalter'}: {selected?.organizer.name}</p>
+   <button onClick={()=>setSelected(null)}>{en ? 'Close' : 'Schließen'}</button>
+  </dialog>
+ </section></MainLayout>;
 }
-
-export const Events: React.FC = () => {
-  const t = useTranslation();
-  const location = useLocation();
-  const [activeTab, setActiveTab] = useState<'list' | 'map'>('list');
-  const [events, setEvents] = useState<EventCardData[]>([]);
-  const [showFilter, setShowFilter] = useState(false);
-  const [highlightId, setHighlightId] = useState<string | null>(null);
-
-  useEffect(() => {
-    async function loadEvents() {
-      const response = await apiClient.getEvents();
-      const payload = response.data as { data?: Event[] } | undefined;
-      setEvents((payload?.data || []).map(mapEventToCard));
-    }
-
-    void loadEvents();
-  }, []);
-
-  useEffect(() => {
-    const state = location.state as { highlightEventId?: string } | null;
-    if (state?.highlightEventId) {
-      setHighlightId(state.highlightEventId);
-      if (activeTab !== 'list') {
-        setActiveTab('list');
-      }
-    }
-  }, [location.state, activeTab]);
-
-  useEffect(() => {
-    if (!highlightId || activeTab !== 'list') return;
-    const target = document.querySelector(`[data-event-id="${highlightId}"]`);
-    if (target) {
-      target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      const timeout = window.setTimeout(() => setHighlightId(null), 3000);
-      return () => window.clearTimeout(timeout);
-    }
-  }, [highlightId, activeTab, events]);
-
-  const handleRegister = async (eventId: string) => {
-    const response = await apiClient.registerEvent(eventId);
-    const updatedEvent = response.data as Event | undefined;
-
-    if (!updatedEvent) {
-      return;
-    }
-
-    setEvents((currentEvents) =>
-      currentEvents.map((event) =>
-        event.id === eventId ? mapEventToCard(updatedEvent) : event
-      )
-    );
-  };
-
-  const handleViewDetails = (eventId: string) => {
-    console.log('View details for event:', eventId);
-  };
-
-  const mapCenter = events[0]?.coords || { lat: 52.52, lng: 13.405 };
-  const delta = 0.06;
-  const bbox = [
-    mapCenter.lng - delta,
-    mapCenter.lat - delta,
-    mapCenter.lng + delta,
-    mapCenter.lat + delta,
-  ].join(',');
-  const mapUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${encodeURIComponent(
-    bbox
-  )}&layer=mapnik&marker=${encodeURIComponent(`${mapCenter.lat},${mapCenter.lng}`)}`;
-
-  return (
-    <MainLayout>
-      <div className="events-container">
-        <div className="events-header">
-          <h1>{t("Tanzevents")}</h1>
-          {highlightId && (
-            <span className="events-highlight-badge">{t("Treffer")}</span>
-          )}
-          <button
-            onClick={() => setShowFilter(!showFilter)}
-            className="events-filter-btn"
-            aria-label="Filter"
-          >
-            <Filter size={20} />
-          </button>
-        </div>
-
-        <div className="events-tabs">
-          <button
-            className={`events-tab ${activeTab === 'list' ? 'active' : ''}`}
-            onClick={() => setActiveTab('list')}
-          >
-            <List size={18} />
-            Liste
-          </button>
-          <button
-            className={`events-tab ${activeTab === 'map' ? 'active' : ''}`}
-            onClick={() => setActiveTab('map')}
-          >
-            <MapPin size={18} />
-            Karte
-          </button>
-        </div>
-
-        {activeTab === 'list' ? (
-          <div className="events-list">
-            {events.map((event) => (
-              <EventCard
-                key={event.id}
-                event={event}
-                highlight={highlightId === event.id}
-                onRegister={handleRegister}
-                onViewDetails={handleViewDetails}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="events-map">
-            {events.length === 0 ? (
-              <div className="events-map-placeholder">
-                <MapPin size={48} />
-                <h2>{t("Keine Events verfügbar")}</h2>
-                <p>{t("Sobald Events verfügbar sind, wird die Karte angezeigt.")}</p>
-              </div>
-            ) : (
-              <div className="events-map-frame">
-                <iframe
-                  title="Events Map"
-                  src={mapUrl}
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                />
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-    </MainLayout>
-  );
-};
-
-export default Events;

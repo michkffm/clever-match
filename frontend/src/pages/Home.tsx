@@ -1,16 +1,18 @@
+import { useLanguage } from '../utils/i18n';
 import React, { useState, useEffect } from 'react';
 import type { PreviewProfile } from '../types';
 import MainLayout from '../layouts/MainLayout';
 import SwipeContainer from '../components/SwipeContainer';
 import FilterModal from '../components/FilterModal';
-import TanzMatchLogo from '../components/TanzMatchLogo';
+import CleverMatchLogo from '../components/CleverMatchLogo';
 import { apiClient } from '../services/api';
 import './Home.css';
 
-// Mock-Daten für Fallback
-const MOCK_PROFILES: PreviewProfile[] = [];
 
 export const Home: React.FC = () => {
+  const en = useLanguage() === 'en';
+  const [error, setError] = useState('');
+  const [filters, setFilters] = useState<import('../components/FilterModal').FilterState>({ ageMin: 18, ageMax: 99, radiusMax: 500 });
   const [profiles, setProfiles] = useState<PreviewProfile[]>([]);
   const [showFilter, setShowFilter] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -19,58 +21,46 @@ export const Home: React.FC = () => {
     async function loadProfiles() {
       try {
         const response = await apiClient.getProfiles();
-        const data = response.data as { data?: any[] } | undefined;
+        if (response.error) { setError(en ? 'Profiles could not be loaded.' : 'Profile konnten nicht geladen werden.'); return; }
+        const data = response.data as { data?: PreviewProfile[] } | undefined;
         setProfiles((data?.data || []) as PreviewProfile[]);
       } catch (error) {
         console.error('Failed to load profiles:', error);
-        setProfiles(MOCK_PROFILES);
+        setError(en ? 'Profiles could not be loaded.' : 'Profile konnten nicht geladen werden.');
       } finally {
         setLoading(false);
       }
     }
     void loadProfiles();
-  }, []);
+  }, [en]);
 
   const handleMatch = async (profileId: string) => {
-    try {
-      await apiClient.createMatch(profileId, 'like');
-      console.log('Matched with:', profileId);
-      // Remove matched profile from list
-      setProfiles((prev) => prev.filter((p) => p.id !== profileId));
-    } catch (error) {
-      console.error('Failed to create match:', error);
-    }
+    const response = await apiClient.createMatch(profileId, 'like');
+    if (response.error) { setError(en ? 'Action failed. Please try again.' : 'Aktion fehlgeschlagen. Bitte versuche es erneut.'); return; }
+    setProfiles(current => current.filter(profile => profile.id !== profileId));
+    setError('');
   };
 
   const handlePass = async (profileId: string) => {
-    try {
-      await apiClient.createMatch(profileId, 'pass');
-      console.log('Passed on:', profileId);
-      // Remove passed profile from list
-      setProfiles((prev) => prev.filter((p) => p.id !== profileId));
-    } catch (error) {
-      console.error('Failed to pass:', error);
-    }
+    const response = await apiClient.createMatch(profileId, 'pass');
+    if (response.error) { setError(en ? 'Action failed. Please try again.' : 'Aktion fehlgeschlagen. Bitte versuche es erneut.'); return; }
+    setProfiles(current => current.filter(profile => profile.id !== profileId));
+    setError('');
   };
 
   const handleSuperlike = async (profileId: string) => {
-    try {
-      await apiClient.createMatch(profileId, 'superlike');
-      console.log('Superliked:', profileId);
-      // Remove superliked profile from list
-      setProfiles((prev) => prev.filter((p) => p.id !== profileId));
-    } catch (error) {
-      console.error('Failed to superlike:', error);
-    }
+    const response = await apiClient.createMatch(profileId, 'superlike');
+    if (response.error) { setError(en ? 'Action failed. Please try again.' : 'Aktion fehlgeschlagen. Bitte versuche es erneut.'); return; }
+    setProfiles(current => current.filter(profile => profile.id !== profileId));
+    setError('');
   };
 
   const handleFilterClick = () => {
     setShowFilter(!showFilter);
   };
 
-  const handleApplyFilters = (filters: any) => {
-    console.log('Filters applied:', filters);
-    // TODO: Implement filter logic with API
+  const handleApplyFilters = (filters: import("../components/FilterModal").FilterState) => {
+    setFilters(filters);
   };
 
   if (loading) {
@@ -79,12 +69,12 @@ export const Home: React.FC = () => {
         <div className="home-container">
           <header className="home-hero">
             <div className="home-logo-wrap">
-              <TanzMatchLogo size="large" showText={false} />
+              <CleverMatchLogo size="large" showText={false} />
             </div>
-            <h1 className="home-brand-title">TanzMatch</h1>
+            <h1 className="home-brand-title">Clever Match</h1>
           </header>
 
-          <div style={{ textAlign: 'center', padding: '1rem 2rem 2rem' }}>Loading profiles...</div>
+          <div style={{ textAlign: 'center', padding: '1rem 2rem 2rem' }}>{en ? 'Loading profiles…' : 'Profile werden geladen…'}</div>
         </div>
       </MainLayout>
     );
@@ -95,14 +85,15 @@ export const Home: React.FC = () => {
       <div className="home-container">
         <header className="home-hero">
           <div className="home-logo-wrap">
-            <TanzMatchLogo size="large" showText={false} />
+            <CleverMatchLogo size="large" showText={false} />
           </div>
-          <h1 className="home-brand-title">TanzMatch</h1>
+          <h1 className="home-brand-title">Clever Match</h1>
         </header>
 
+        {error && <p role="alert">{error}</p>}
         <div className="home-swipe-area">
           <SwipeContainer
-            profiles={profiles}
+            profiles={profiles.filter(profile => (!profile.age || (profile.age >= filters.ageMin && profile.age <= filters.ageMax)) && (profile.distance == null || profile.distance <= filters.radiusMax))}
             onMatch={handleMatch}
             onPass={handlePass}
             onSuperlike={handleSuperlike}

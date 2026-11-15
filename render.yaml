@@ -15,10 +15,14 @@ services:
         sync: false
       - key: JWT_SECRET
         generateValue: true
+      - key: APP_ORIGIN
+        value: https://tanzmatch-web.onrender.com
+      - key: MAIL_FROM
+        value: Clever Match <clever-match@kontakt.spendscape.de>
       - key: JWT_EXPIRES_IN
         value: 15m
       - key: REFRESH_COOKIE_SAMESITE
-        value: lax
+        value: none
       - key: CORS_ORIGIN
         fromService:
           type: web

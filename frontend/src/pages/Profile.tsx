@@ -329,7 +329,7 @@ export const Profile: React.FC = () => {
                   onClick={() => setShowReportModal(false)}
                   className="btn-secondary report-cancel"
                 >
-                  Abbrechen
+                  {t("Abbrechen")}
                 </button>
               </div>
             </div>

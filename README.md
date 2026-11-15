@@ -1,12 +1,12 @@
-# TanzMatch
+# Clever Match
 
 **Deutsch** | [English](README.en.md)
 
 [Live-App](https://tanzmatch-web.onrender.com/)
 
-TanzMatch ist eine Fullstack-App zum Finden von Tanzpartnern mit Profilen, Matching und Chat. Frontend und Backend laufen auf Render; die Daten werden in MongoDB Atlas gespeichert.
+Clever Match ist eine Fullstack-App zum Finden von Tanzpartnern mit Profilen, Matching und Chat. Frontend und Backend laufen auf Render; die Daten werden in MongoDB Atlas gespeichert.
 
-![TanzMatch – Anmeldung auf dem Desktop](docs/tanzmatch-desktop.png)
+![Clever Match – Anmeldung auf dem Desktop](docs/clever-match-desktop.png)
 
 ## Funktionen
 
@@ -20,21 +20,21 @@ TanzMatch ist eine Fullstack-App zum Finden von Tanzpartnern mit Profilen, Match
 
 ## Mobile Ansicht
 
-<img src="docs/tanzmatch-mobile.png" alt="TanzMatch – Anmeldung auf einem Smartphone" width="390">
+<img src="docs/clever-match-mobile.png" alt="Clever Match – Anmeldung auf einem Smartphone" width="390">
 
-Die Screenshots zeigen die veröffentlichte Anmeldung zum Zeitpunkt der Aufnahme. Die Oberfläche wird weiterentwickelt.
+Die Screenshots zeigen die aktuelle Anmeldung: Deutsch im Hellmodus und Englisch im Dunkelmodus.
 
 ## Entwicklungsstand
 
-TanzMatch bleibt kostenlos. Der Passwort-Reset über Resend und die Vervollständigung der Benachrichtigungen sind noch in Arbeit. Es gibt keine bezahlten Abos. Einzelne erweiterte Oberflächen enthalten noch nicht vollständig umgesetzte Funktionen oder Übersetzungen. Vorhandene Frontend-Lintfehler werden separat bereinigt. Eine vollständige Prüfung auf WCAG-Konformität wurde noch nicht durchgeführt.
+Clever Match bleibt kostenlos. Passwort-Reset über Resend, gespeicherte Benachrichtigungseinstellungen und geschützte Chats sind implementiert. Der E-Mail-Versand benötigt die unten beschriebenen Dienstvariablen. Eine vollständige Prüfung auf WCAG-Konformität wurde noch nicht durchgeführt.
 
 ## Lokal starten
 
 Voraussetzungen: Node.js 22, npm und eine erreichbare MongoDB-Datenbank.
 
 ```bash
-git clone https://github.com/michkffm/tanzmatch.git
-cd tanzmatch
+git clone https://github.com/michkffm/clever-match.git
+cd clever-match
 npm ci
 cp backend/.env.example backend/.env
 cp frontend/.env.example frontend/.env.local
@@ -51,12 +51,14 @@ Frontend: `http://localhost:5173` · API: `http://localhost:5000/api`
 ```bash
 npm run type-check
 npm run lint
+npm run test:api
 npm run test:e2e
+npm audit
 npm run build
 npm run start:backend
 ```
 
-Der Produktionsbuild erstellt zuerst die gemeinsamen Typen, danach Frontend und Backend. Die Browserprüfungen starten einen lokalen Frontend-Testserver. `npm run lint` meldet derzeit noch bestehende Frontend-Probleme.
+Der Produktionsbuild erstellt zuerst die gemeinsamen Typen, danach Frontend und Backend. Die Browserprüfungen starten einen lokalen Frontend-Testserver. Die API-Tests verwenden eine temporäre lokale MongoDB ohne Produktionsdaten; beim ersten Lauf wird die MongoDB-Testversion heruntergeladen.
 
 ## Technologien und Struktur
 
@@ -80,7 +82,7 @@ Die benötigten Variablen sind ohne geheime Werte in `backend/.env.example` und 
 - `CLOUDINARY_URL`: erforderlich für Profilfoto-Uploads
 - `ENABLE_DEMO_SEED`: nur für ausdrücklich aktivierte lokale Demo-Daten
 
-Passwort-Reset ist bis zur sicheren Einrichtung eines E-Mail-Versanddiensts deaktiviert. Secrets werden ausschließlich lokal oder im Hosting-Dienst gespeichert.
+Für Passwort-Reset werden `RESEND_API_KEY`, `MAIL_FROM` (verifizierte Absenderdomain) und `APP_ORIGIN` benötigt. Secrets werden ausschließlich lokal oder im Hosting-Dienst gespeichert.
 
 ## Sicherheit und Datenschutz
 

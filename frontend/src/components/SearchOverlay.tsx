@@ -1,3 +1,4 @@
+import { useTranslation } from "../utils/translations";
 import React, { useEffect, useMemo, useState } from 'react';
 import { X, Search, Users, Calendar } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -21,6 +22,7 @@ interface SearchOverlayProps {
 }
 
 export const SearchOverlay: React.FC<SearchOverlayProps> = ({ open, onClose }) => {
+  const t = useTranslation();
   const [inputValue, setInputValue] = useState('');
   const [query, setQuery] = useState('');
   const [profiles, setProfiles] = useState<PreviewProfile[]>([]);
@@ -133,19 +135,19 @@ export const SearchOverlay: React.FC<SearchOverlayProps> = ({ open, onClose }) =
             <Search size={18} />
             <input
               type="text"
-              placeholder="Suche nach Tänzen, Personen, Events..."
+              placeholder={t("Suche nach Tänzen, Personen, Events...")}
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               autoFocus
             />
           </div>
-          <button className="search-close" onClick={onClose} aria-label="Schließen">
+          <button className="search-close" onClick={onClose} aria-label={t("Schließen")}>
             <X size={20} />
           </button>
         </div>
 
         <div className="search-results">
-          {isLoading && <div className="search-state">Suche lädt…</div>}
+          {isLoading && <div className="search-state">{t("Suche lädt…")}</div>}
           {error && <div className="search-state">{error}</div>}
 
           {!isLoading && !error && (
@@ -156,7 +158,7 @@ export const SearchOverlay: React.FC<SearchOverlayProps> = ({ open, onClose }) =
                   <span>Profile</span>
                 </div>
                 {filteredProfiles.length === 0 ? (
-                  <div className="search-empty">Keine Profile gefunden</div>
+                  <div className="search-empty">{t("Keine Profile gefunden")}</div>
                 ) : (
                   <ul className="search-list">
                     {filteredProfiles.slice(0, 6).map((profile) => (
@@ -188,7 +190,7 @@ export const SearchOverlay: React.FC<SearchOverlayProps> = ({ open, onClose }) =
                   <span>Events</span>
                 </div>
                 {filteredEvents.length === 0 ? (
-                  <div className="search-empty">Keine Events gefunden</div>
+                  <div className="search-empty">{t("Keine Events gefunden")}</div>
                 ) : (
                   <ul className="search-list">
                     {filteredEvents.slice(0, 6).map((event) => (

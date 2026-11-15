@@ -1,8 +1,9 @@
+import type { Profile } from '../types/api';
 import { useTranslation } from "../utils/translations";
 import React, { useEffect, useState } from 'react';
 import { Save, Upload, Trash2 } from 'lucide-react';
 import { TanzCheckboxGrid } from '../components/TanzCheckboxGrid';
-import { useNotification } from '../components/NotificationContainer';
+import { useNotification } from '../hooks/useNotification';
 import { apiClient } from '../services/api';
 import { storageService } from '../services/storage';
 import { useAuthStore } from '../store/authStore';
@@ -22,30 +23,30 @@ interface ProfileEditState {
   selectedDances: string[];
   danceLevels: { danceId: string; level: 1 | 2 | 3 | 4 | 5 }[];
   customDances: string[];
-  searchPurposes: ('hobby' | 'dance-circle' | 'free-time' | 'professional' | 'balls' | 'events' | 'relocation')[];
+  searchPurposes: string[];
   photos: string[];
   calendar: boolean[];
 }
 
 const initialState: ProfileEditState = {
-  firstName: 'Max',
-  lastName: 'Mustermann',
+  firstName: '',
+  lastName: '',
   age: 28,
   gender: 'M',
   height: 180,
   athleticism: 'sporty',
   figure: 'normal',
-  bio: 'Leidenschaftlicher Tänzer auf der Suche nach meinem perfekten Partner!',
-  selectedDances: ['salsa', 'bachata', 'tango'],
+  bio: '',
+  selectedDances: [],
   danceLevels: [
     { danceId: 'salsa', level: 3 },
     { danceId: 'bachata', level: 2 },
     { danceId: 'tango', level: 2 },
   ],
   customDances: [],
-  searchPurposes: ['hobby', 'events'],
-  photos: ['https://via.placeholder.com/200x200?text=Foto+1'],
-  calendar: [true, true, false, true, true, false, true],
+  searchPurposes: [],
+  photos: [],
+  calendar: [false, false, false, false, false, false, false],
 };
 
 type TabType = 'info' | 'dances' | 'calendar' | 'photos';
@@ -59,7 +60,7 @@ export const ProfileEdit: React.FC = () => {
   const [hasChanges, setHasChanges] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
-  const handleChange = (field: string, value: any) => {
+  const handleChange = <K extends keyof ProfileEditState,>(field: K, value: ProfileEditState[K]) => {
     setProfile((prev) => ({ ...prev, [field]: value }));
     setHasChanges(true);
   };
@@ -74,18 +75,6 @@ export const ProfileEdit: React.FC = () => {
     handleChange('danceLevels', updated);
   };
 
-  useEffect(() => {
-    if (!user) {
-      return;
-    }
-
-    setProfile((prev) => ({
-      ...prev,
-      firstName: user.firstName || prev.firstName,
-      lastName: user.lastName || prev.lastName,
-      age: user.age ?? prev.age,
-    }));
-  }, [user?.id]);
 
   useEffect(() => {
     let isActive = true;
@@ -97,13 +86,21 @@ export const ProfileEdit: React.FC = () => {
       }
 
       if (response.data) {
-        const data = response.data as any;
+        const data = response.data as Profile;
         setProfile((prev) => ({
           ...prev,
           firstName: data.firstName ?? prev.firstName,
           lastName: data.lastName ?? prev.lastName,
           age: data.age ?? prev.age,
           bio: data.bio ?? prev.bio,
+          gender: data.gender ?? prev.gender,
+          height: data.height ?? prev.height,
+          athleticism: data.athleticism ?? prev.athleticism,
+          figure: data.figure ?? prev.figure,
+          calendar: data.calendar ?? prev.calendar,
+          customDances: data.customDances ?? prev.customDances,
+          danceLevels: data.danceLevels ?? prev.danceLevels,
+
           selectedDances: Array.isArray(data.danceStyles) ? data.danceStyles : prev.selectedDances,
           searchPurposes: Array.isArray(data.interests) ? data.interests : prev.searchPurposes,
           photos: Array.isArray(data.profilePhotos) ? data.profilePhotos : prev.photos,
@@ -123,7 +120,7 @@ export const ProfileEdit: React.FC = () => {
   const handleSave = async () => {
     if (!hasChanges || isSaving) {
       if (!isSaving) {
-        notify.info('Keine Änderungen zum Speichern.');
+        notify.info(t("Keine Änderungen zum Speichern."));
       }
       return;
     }
@@ -140,6 +137,14 @@ export const ProfileEdit: React.FC = () => {
         firstName: profile.firstName,
         lastName: profile.lastName,
         age: profile.age,
+        gender: profile.gender,
+        height: profile.height,
+        athleticism: profile.athleticism,
+        figure: profile.figure,
+        calendar: profile.calendar,
+        customDances: profile.customDances,
+        danceLevels: profile.danceLevels,
+
         bio: profile.bio,
         danceStyles: profile.selectedDances,
         interests: profile.searchPurposes,
@@ -152,13 +157,21 @@ export const ProfileEdit: React.FC = () => {
       }
 
       if (response.data) {
-        const updatedProfile = response.data as any;
+        const updatedProfile = response.data as Profile;
         setProfile((prev) => ({
           ...prev,
           firstName: updatedProfile.firstName ?? prev.firstName,
           lastName: updatedProfile.lastName ?? prev.lastName,
           age: updatedProfile.age ?? prev.age,
           bio: updatedProfile.bio ?? prev.bio,
+          gender: updatedProfile.gender ?? prev.gender,
+          height: updatedProfile.height ?? prev.height,
+          athleticism: updatedProfile.athleticism ?? prev.athleticism,
+          figure: updatedProfile.figure ?? prev.figure,
+          calendar: updatedProfile.calendar ?? prev.calendar,
+          customDances: updatedProfile.customDances ?? prev.customDances,
+          danceLevels: updatedProfile.danceLevels ?? prev.danceLevels,
+
           selectedDances: Array.isArray(updatedProfile.danceStyles)
             ? updatedProfile.danceStyles
             : prev.selectedDances,
@@ -189,13 +202,13 @@ export const ProfileEdit: React.FC = () => {
       }
 
       setHasChanges(false);
-      notify.success('Profil gespeichert.');
+      notify.success(t("Profil gespeichert."));
       if (hasLocalPhotos) {
-        notify.warning('Einige lokale Fotos wurden nicht gespeichert. Bitte erneut hochladen.');
+        notify.warning(t("Einige lokale Fotos wurden nicht gespeichert. Bitte erneut hochladen."));
       }
     } catch (error) {
       console.error('Failed to save profile:', error);
-      notify.error('Speichern fehlgeschlagen.');
+      notify.error(t("Speichern fehlgeschlagen."));
     } finally {
       setIsSaving(false);
     }
@@ -206,7 +219,8 @@ export const ProfileEdit: React.FC = () => {
     if (files && files.length > 0 && profile.photos.length < 5) {
       try {
         // Upload to API
-        const response = await apiClient.uploadProfilePhotos(Array.from(files));
+        const response = await apiClient.uploadProfilePhotos(Array.from(files).slice(0, 5 - profile.photos.length));
+        if (response.error) throw new Error('Upload failed');
         const data = response.data as { data?: string[] } | undefined;
         const uploadedUrls = (data?.data || []) as string[];
 
@@ -217,12 +231,8 @@ export const ProfileEdit: React.FC = () => {
         }
     } catch (error) {
       console.error('Failed to upload photos:', error);
-      notify.warning('Upload fehlgeschlagen. Foto ist nur lokal sichtbar.');
-      // Fallback to local preview
-      const newPhotos = [...profile.photos, URL.createObjectURL(files[0])];
-      if (newPhotos.length <= 5) {
-        handleChange('photos', newPhotos);
-      }
+      notify.warning(t("Foto konnte nicht hochgeladen werden."));
+
       }
     }
   };
@@ -259,7 +269,7 @@ export const ProfileEdit: React.FC = () => {
               onClick={handleSave}
               disabled={isSaving}
             >
-              <Save size={18} /> {isSaving ? 'Speichern...' : 'Speichern'}
+              <Save size={18} /> {isSaving ? 'Speichern...' : t("Speichern")}
             </button>
           </div>
         </div>
@@ -270,25 +280,25 @@ export const ProfileEdit: React.FC = () => {
             className={`tab-btn ${currentTab === 'info' ? 'active' : ''}`}
             onClick={() => setCurrentTab('info')}
           >
-            Info
+            {t("Info")}
           </button>
           <button
             className={`tab-btn ${currentTab === 'dances' ? 'active' : ''}`}
             onClick={() => setCurrentTab('dances')}
           >
-            Tänze
+            {t("Tänze")}
           </button>
           <button
             className={`tab-btn ${currentTab === 'calendar' ? 'active' : ''}`}
             onClick={() => setCurrentTab('calendar')}
           >
-            Kalender
+            {t("Kalender")}
           </button>
           <button
             className={`tab-btn ${currentTab === 'photos' ? 'active' : ''}`}
             onClick={() => setCurrentTab('photos')}
           >
-            Fotos
+            {t("Fotos")}
           </button>
         </div>
 
@@ -302,8 +312,8 @@ export const ProfileEdit: React.FC = () => {
 
                 <div className="form-row">
                   <div className="form-group">
-                    <label>{t("Vorname")}</label>
-                    <input
+                    <label htmlFor="profile-firstName">{t("Vorname")}</label>
+                    <input id="profile-firstName"
                       type="text"
                       value={profile.firstName}
                       onChange={(e) => handleChange('firstName', e.target.value)}
@@ -311,8 +321,8 @@ export const ProfileEdit: React.FC = () => {
                     />
                   </div>
                   <div className="form-group">
-                    <label>{t("Nachname")}</label>
-                    <input
+                    <label htmlFor="profile-lastName">{t("Nachname")}</label>
+                    <input id="profile-lastName"
                       type="text"
                       value={profile.lastName}
                       onChange={(e) => handleChange('lastName', e.target.value)}
@@ -323,8 +333,8 @@ export const ProfileEdit: React.FC = () => {
 
                 <div className="form-row">
                   <div className="form-group">
-                    <label>{t("Alter (Jahre)")}</label>
-                    <input
+                    <label htmlFor="profile-age">{t("Alter (Jahre)")}</label>
+                    <input id="profile-age"
                       type="number"
                       min="18"
                       max="70"
@@ -334,8 +344,8 @@ export const ProfileEdit: React.FC = () => {
                     />
                   </div>
                   <div className="form-group">
-                    <label>{t("Größe (cm)")}</label>
-                    <input
+                    <label htmlFor="profile-height">{t("Größe (cm)")}</label>
+                    <input id="profile-height"
                       type="number"
                       min="150"
                       max="210"
@@ -348,10 +358,10 @@ export const ProfileEdit: React.FC = () => {
 
                 <div className="form-row">
                   <div className="form-group">
-                    <label>{t("Geschlecht")}</label>
-                    <select
+                    <label htmlFor="profile-gender">{t("Geschlecht")}</label>
+                    <select id="profile-gender"
                       value={profile.gender}
-                      onChange={(e) => handleChange('gender', e.target.value)}
+                      onChange={(e) => handleChange('gender', e.target.value as ProfileEditState['gender'])}
                       className="form-input-field"
                     >
                       <option value="M">{t("Männlich")}</option>
@@ -368,10 +378,10 @@ export const ProfileEdit: React.FC = () => {
 
                 <div className="form-row">
                   <div className="form-group">
-                    <label>{t("Sportlichkeit")}</label>
-                    <select
+                    <label htmlFor="profile-athleticism">{t("Sportlichkeit")}</label>
+                    <select id="profile-athleticism"
                       value={profile.athleticism}
-                      onChange={(e) => handleChange('athleticism', e.target.value)}
+                      onChange={(e) => handleChange('athleticism', e.target.value as ProfileEditState['athleticism'])}
                       className="form-input-field"
                     >
                       <option value="very-sporty">{t("Sehr sportlich")}</option>
@@ -381,10 +391,10 @@ export const ProfileEdit: React.FC = () => {
                     </select>
                   </div>
                   <div className="form-group">
-                    <label>{t("Figur")}</label>
-                    <select
+                    <label htmlFor="profile-figure">{t("Figur")}</label>
+                    <select id="profile-figure"
                       value={profile.figure}
-                      onChange={(e) => handleChange('figure', e.target.value)}
+                      onChange={(e) => handleChange('figure', e.target.value as ProfileEditState['figure'])}
                       className="form-input-field"
                     >
                       <option value="slim">{t("Schlank")}</option>
@@ -400,8 +410,8 @@ export const ProfileEdit: React.FC = () => {
                 <h2>{t("Über mich")}</h2>
 
                 <div className="form-group">
-                  <label>Bio ({profile.bio.length}/200 Zeichen)</label>
-                  <textarea
+                  <label htmlFor="profile-bio">Bio ({profile.bio.length}/200 Zeichen)</label>
+                  <textarea id="profile-bio"
                     value={profile.bio}
                     onChange={(e) => handleChange('bio', e.target.value.substring(0, 200))}
                     className="form-input-field textarea"
@@ -417,13 +427,13 @@ export const ProfileEdit: React.FC = () => {
                 <div className="checkbox-group">
                   {[
                     { id: 'hobby', label: 'Hobby' },
-                    { id: 'dance-circle', label: 'Tanzkreis' },
-                    { id: 'free-time', label: 'Freizeit' },
-                    { id: 'professional', label: 'Beruflich' },
-                    { id: 'balls', label: 'Bälle/Turniere' },
+                    { id: 'dance-circle', label: t("Tanzkreis") },
+                    { id: 'free-time', label: t("Freizeit") },
+                    { id: 'professional', label: t("Beruflich") },
+                    { id: 'balls', label: t("Bälle/Turniere") },
                     { id: 'events', label: 'Events' },
-                    { id: 'relocation', label: 'Umzug' },
-                  ].map((purpose: any) => (
+                    { id: 'relocation', label: t("Umzug") },
+                  ].map((purpose) => (
                     <label key={purpose.id} className="checkbox-label">
                       <input
                         type="checkbox"

@@ -16,7 +16,7 @@ export function DisplayControls() {
         setLargeText(next);
         localStorage.setItem('large_text', String(next));
         document.documentElement.classList.toggle('large-text', next);
-      }}>{en ? 'Larger text' : 'Größere Schrift'}</button>
+      }}>{en ? 'Text size' : 'Textgröße'}: {largeText ? (en ? 'Large' : 'Groß') : (en ? 'Standard' : 'Standard')}</button>
     </div>
   );
 }
