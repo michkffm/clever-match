@@ -8,6 +8,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Clever Match</title>
     <script>
+      if (location.hostname === 'tanzmatch-web.onrender.com') {
+        location.replace('https://clevermatch.onrender.com' + location.pathname + location.search + location.hash);
+      }
       // Unregister all service workers and clear all caches before React loads.
       // This prevents stale cached JS from causing blank screens.
       if ('serviceWorker' in navigator) {
