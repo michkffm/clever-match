@@ -16,7 +16,7 @@ services:
       - key: JWT_SECRET
         generateValue: true
       - key: APP_ORIGIN
-        value: https://tanzmatch-web.onrender.com
+        value: https://clevermatch.onrender.com
       - key: MAIL_FROM
         value: Clever Match <clever-match@kontakt.spendscape.de>
       - key: JWT_EXPIRES_IN
@@ -26,11 +26,11 @@ services:
       - key: CORS_ORIGIN
         fromService:
           type: web
-          name: tanzmatch-web
+          name: clevermatch
           envVarKey: RENDER_EXTERNAL_HOSTNAME
 
   - type: web
-    name: tanzmatch-web
+    name: clevermatch
     runtime: static
     buildCommand: npm ci --include=dev && npm run build:frontend
     staticPublishPath: frontend/dist

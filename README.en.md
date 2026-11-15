@@ -2,7 +2,7 @@
 
 [Deutsch](README.md) | **English**
 
-[Live app](https://tanzmatch-web.onrender.com/)
+[Live app](https://clevermatch.onrender.com/)
 
 Clever Match is a full-stack app for finding dance partners through profiles, matching, and chat. The frontend and backend run on Render, with data stored in MongoDB Atlas.
 
